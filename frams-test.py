@@ -9,6 +9,12 @@ import sys
 
 import frams
 
+try:
+    import numpy as np
+except ImportError:
+    # "import numpy" may fail if Framsticks DLL was loaded
+    pass
+
 frams.init(*(sys.argv[1:]))  # pass whatever args we have, init() is the right place to deal with different scenarios:
 # frams.init() - should try to figure out everything (and might fail)
 # frams.init('path/to/lib') - load the library from the specified directory and configure Framsticks path as "data" inside this directory
@@ -144,3 +150,5 @@ np.set_printoptions()  # avoids straange python errors: frams.py, line 48, in __
 # Note that implementing a complete expdef, especially a complex one, entirely in python may be inconvenient or impractical
 # because you do not have access to "event handlers" like you have in FramScript - onStep(), onBorn(), onDied(), onCollision() etc.,
 # so you would have to check various conditions in python in each simulation step to achieve the same effect.
+
+print("\n\ntest ok")

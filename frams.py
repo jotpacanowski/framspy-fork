@@ -28,11 +28,13 @@ import ctypes
 import os
 import re
 import sys
+from typing import Any
 
-c_api = None  # will be initialized in init(). Global because ExtValue uses it.
+c_api: ctypes.CDLL | None = None
+"""will be initialized in init(). Global because ExtValue uses it."""
 
 
-class ExtValue:
+class ExtValue[T]:
     """All Framsticks objects and values are instances of this class.
     Read the documentation of the 'frams' module for more information.
     """
@@ -112,7 +114,7 @@ class ExtValue:
     def _cstringFromPython(cls, s):
         return ctypes.c_char_p(s.encode(ExtValue._encoding))
 
-    def _type(self):
+    def _type(self) -> int | Any:
         return c_api.extType(self.__ptr)
 
     def _class(self):
@@ -122,7 +124,7 @@ class ExtValue:
         else:
             return ExtValue._stringFromC(cls)
 
-    def _value(self):
+    def _value(self) -> T:
         t = self._type()
         if t == 0:
             return None

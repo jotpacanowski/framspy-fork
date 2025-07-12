@@ -4,18 +4,18 @@ import warnings
 
 from framsfiles._context import _create_specs_from_xml
 
-warnings.simplefilter('always', UserWarning)
+warnings.simplefilter("always", UserWarning)
 
-_INT_FLOAT_REGEX = r'([+|-]?(?:0|[1-9]\d*))(\.\d+)?([eE][-+]?\d+)?'
-_NATURAL_REGEX = r'(?:0|[1-9]\d*)'
-_HEX__NUMBER_REGEX = r'[+|-]?0[xX][\da-fA-F]*'
-_NUMBER_REGEX = '({}|{})'.format(_HEX__NUMBER_REGEX, _INT_FLOAT_REGEX)
-_TYLDA_REGEX = '(?<![\\\\])(~)'
+_INT_FLOAT_REGEX = r"([+|-]?(?:0|[1-9]\d*))(\.\d+)?([eE][-+]?\d+)?"
+_NATURAL_REGEX = r"(?:0|[1-9]\d*)"
+_HEX__NUMBER_REGEX = r"[+|-]?0[xX][\da-fA-F]*"
+_NUMBER_REGEX = "({}|{})".format(_HEX__NUMBER_REGEX, _INT_FLOAT_REGEX)
+_TYLDA_REGEX = "(?<![\\\\])(~)"
 _QUOTE_REGEX = '(?<![\\\\])(")'
 _ESCAPED_QUOTE_REGEX = '\\\\"'
-_ESCAPED_TAB_REGEX = '\\\\t'
-_ESCAPED_NEWLINE_REGEX = '\\\\n'
-_ESCAPED_TYLDA_REGEX = '\\\\~'
+_ESCAPED_TAB_REGEX = "\\\\t"
+_ESCAPED_NEWLINE_REGEX = "\\\\n"
+_ESCAPED_TYLDA_REGEX = "\\\\~"
 _FRAMSCRIPT_XML_PATH = os.path.join((os.path.dirname(__file__)), "framscript.xml")
 
 # Messages:
@@ -103,17 +103,17 @@ def _extract_string(exp):
         raise ValueError(_STRING_NOT_CLOSED_ERROR.format(exp))
     str_end = str_end_match.span()[0]
     s = exp[:str_end]
-    reminder = exp[str_end + 1:]
+    reminder = exp[str_end + 1 :]
     s = _re.sub(_ESCAPED_QUOTE_REGEX, '"', s)
-    s = _re.sub(_ESCAPED_TAB_REGEX, '\t', s)
-    s = _re.sub(_ESCAPED_NEWLINE_REGEX, '\n', s)
+    s = _re.sub(_ESCAPED_TAB_REGEX, "\t", s)
+    s = _re.sub(_ESCAPED_NEWLINE_REGEX, "\n", s)
     return s, reminder
 
 
 def _extract_number(exp):
     match = _re.match(_NUMBER_REGEX, exp)
     number_as_str = match.group()
-    reminder = exp[match.span()[1]:]
+    reminder = exp[match.span()[1] :]
     number = _str_to_number(number_as_str)
     return number, reminder
 
@@ -121,25 +121,25 @@ def _extract_number(exp):
 # TODO maybe do it nicer??
 def _extract_xyz(exp):
     exp = exp.strip()
-    if not exp.startswith('XYZ['):
+    if not exp.startswith("XYZ["):
         raise ValueError(_XYZ_ERROR.format(exp))
     exp = exp[4:]
     x, exp = _extract_number(exp)
     x = float(x)
     exp = exp.strip()
-    if exp[0] != ',':
+    if exp[0] != ",":
         raise ValueError(_XYZ_ERROR.format(exp))
     exp = exp[1:]
     y, exp = _extract_number(exp)
     y = float(y)
     exp = exp.strip()
-    if exp[0] != ',':
+    if exp[0] != ",":
         raise ValueError(_XYZ_ERROR.format(exp))
     exp = exp[1:]
     z, exp = _extract_number(exp)
     z = float(z)
     exp = exp.strip()
-    if exp[0] != ']':
+    if exp[0] != "]":
         raise ValueError(_XYZ_ERROR.format(exp))
     return (x, y, z), exp[1:]
 
@@ -161,7 +161,7 @@ def _extract_custom_object(exp):
     open_sbrackets = 0
     open_pbrackets = 0
     # TODO maybe do it smarter?
-    suffix_end_match = _re.search('<|\[|\{]', exp)
+    suffix_end_match = _re.search("<|\[|\{]", exp)
     if suffix_end_match is None:
         # TODO
         raise ValueError()
@@ -169,17 +169,17 @@ def _extract_custom_object(exp):
     suffix_end_i = suffix_end_match.span()[0]
     i = 0
     for i, c in enumerate(exp[suffix_end_i:], start=suffix_end_i):
-        if c == '<':
+        if c == "<":
             open_pbrackets += 1
-        elif c == '[':
+        elif c == "[":
             open_sbrackets += 1
-        elif c == '{':
+        elif c == "{":
             open_braces += 1
-        elif c == '>':
+        elif c == ">":
             open_pbrackets -= 1
-        elif c == ']':
+        elif c == "]":
             open_sbrackets -= 1
-        elif c == '}':
+        elif c == "}":
             open_braces -= 1
 
         if open_braces == 0 and open_sbrackets == 0 and open_pbrackets == 0:
@@ -187,16 +187,16 @@ def _extract_custom_object(exp):
     if open_braces != 0 or open_sbrackets != 0 or open_pbrackets != 0:
         # TODO
         raise ValueError()
-    return exp[0:i + 1], exp[i + 1:]
+    return exp[0 : i + 1], exp[i + 1 :]
 
 
 def deserialize(expression):
     stripped_exp = expression.strip()
-    if stripped_exp == '':
+    if stripped_exp == "":
         raise ValueError(_EMPTY_SERIALIZED_ERROR)
     # Just load with json ...
 
-    if stripped_exp == 'null':
+    if stripped_exp == "null":
         return None
 
     objects = []
@@ -214,7 +214,7 @@ def deserialize(expression):
         if main_object_determined and len(objects) == 0:
             raise ValueError(_NO_OBJECT_ERROR)
         if expect_dict_value:
-            if exp[0] == ':':
+            if exp[0] == ":":
                 exp = exp[1:].strip()
             else:
                 raise ValueError(_COLON_EXPECTED_ERROR.foramt(exp[0]))
@@ -263,7 +263,7 @@ def deserialize(expression):
             current_object, exp = _extract_string(exp)
         elif _re.match(_NUMBER_REGEX, exp) is not None:
             current_object, exp = _extract_number(exp)
-        elif exp[0] == '^':
+        elif exp[0] == "^":
             i, exp = _extract_reference(exp)
             if i >= len(references):
                 # TODO msg
@@ -327,13 +327,12 @@ def loads(input_string, context=None, autocast=True):
     class_name = None
     try:
         for line_num, line in enumerate(lines):
-
             if multiline_key is not None:
                 endmatch = _re.search(_TYLDA_REGEX, line)
                 if endmatch is not None:
                     endi = endmatch.span()[0]
                     value = line[0:endi]
-                    reminder = line[endi + 1:].strip()
+                    reminder = line[endi + 1 :].strip()
                     if reminder != "":
                         # TODO msg
                         raise ValueError()
@@ -343,7 +342,7 @@ def loads(input_string, context=None, autocast=True):
                 if _re.search(_TYLDA_REGEX, value) is not None:
                     # TODO msg
                     raise ValueError()
-                value = _re.sub(_ESCAPED_TYLDA_REGEX, '~', value)
+                value = _re.sub(_ESCAPED_TYLDA_REGEX, "~", value)
                 multiline_value += value
                 if endmatch is not None:
                     current_object[multiline_key] = multiline_value
@@ -405,7 +404,7 @@ def load(filename, context=None, autocast=True):
         If false every field will be treated as a string.
         :return: A list of dictionaries representing Framsticks objects.
     """
-    file = open(filename, encoding='UTF-8')
+    file = open(filename, encoding="UTF-8")
     if context is None:
         try:
             _, extension = filename.split(".")

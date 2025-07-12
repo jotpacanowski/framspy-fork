@@ -14,13 +14,22 @@ frams.init(*(sys.argv[1:]))  # pass whatever args we have, init() is the right p
 # frams.init('path/to/lib','-d/tmp/workdir/data') - as above, but set the working (writable) directory somewhere else (see also -D)
 # frams.init('path/to/lib','-Lframs-objects-alt.dll') - use specified library location and non-default file name
 
-print('Available objects:', dir(frams))
+print("Available objects:", dir(frams))
 print()
 
 
 def extValueDetails(v):
     """A helper function to display basic information about a variable of type ExtValue."""
-    return '\t"' + str(v) + '"    frams type=' + str(v._type()) + '    frams class=' + str(v._class()) + '    python type=' + str(type(v._value()))
+    return (
+        '\t"'
+        + str(v)
+        + '"    frams type='
+        + str(v._type())
+        + "    frams class="
+        + str(v._class())
+        + "    python type="
+        + str(type(v._value()))
+    )
 
 
 dic_as_string = '[100,2.2,"abc",[null,[],{}],XYZ[9,8,7]]'
@@ -30,19 +39,23 @@ v = frams.String.deserialize(dic_as_string)
 print("Framsticks String.deserialize() returned\n\t", type(v))
 print("More specifically, it is:")
 print(extValueDetails(v))
-print("Even though it is ExtValue (Framsticks' Vector), it supports iteration like a python vector, so let's inspect its elements:")
+print(
+    "Even though it is ExtValue (Framsticks' Vector), it supports iteration like a python vector, so let's inspect its elements:"
+)
 for e in v:
     print(extValueDetails(e))
 
-print("\nNow let's play with the Framsticks simulator. Let's create a Genotype object and set fields in its custom 'data' dictionary.")
-g = frams.GenePools[0].add('X')
+print(
+    "\nNow let's play with the Framsticks simulator. Let's create a Genotype object and set fields in its custom 'data' dictionary."
+)
+g = frams.GenePools[0].add("X")
 g.name = "Snakis Py"
-g.data['custom'] = 123.456
-g.data['a'] = 'b'  # implicit conversion, looks like python dictionary but still converts '3' and '4' to ExtValue
+g.data["custom"] = 123.456
+g.data["a"] = "b"  # implicit conversion, looks like python dictionary but still converts '3' and '4' to ExtValue
 dic = frams.Dictionary.new()  # let's create a Dictionary object from Framsticks
-dic.set('1', '2')  # calling set() from Framsticks Dictionary
-dic['3'] = '4'  # implicit conversion, looks like python dictionary but still converts '3' and '4' to ExtValue
-g.data['d'] = dic
+dic.set("1", "2")  # calling set() from Framsticks Dictionary
+dic["3"] = "4"  # implicit conversion, looks like python dictionary but still converts '3' and '4' to ExtValue
+g.data["d"] = dic
 print(extValueDetails(g))
 
 print("Let's add a few mutants and display their data:")
@@ -58,7 +71,7 @@ print("Now water level is", frams.World.wrldwat)
 frams.World.wrldwat = frams.World.wrldwat._value() + 0.7
 print("Now water level is", frams.World.wrldwat)
 
-initial_genotype = 'X(X,RX(X[T],X[G]))'  # simple body with touch and gyroscope sensors
+initial_genotype = "X(X,RX(X[T],X[G]))"  # simple body with touch and gyroscope sensors
 print("Let's perform a few simulation steps of the initial genotype:", initial_genotype)
 frams.ExpProperties.initialgen = initial_genotype
 frams.ExpProperties.p_mut = 0  # no mutation (the selection procedure will clone our initial genotype)
@@ -73,10 +86,13 @@ for s in range(15):
     step()  # first step performs selection and revives one genotype according to standard.expdef rules
     creature = frams.Populations[0][0]  # FramScript Creature object
     mechpart0 = creature.getMechPart(0)
-    print('Step# = %d' % frams.Simulator.stepNumber._value(),
-          '\tSimulated_creatures =', frams.Populations[0].size._value(),
-          "\tpart0_xyz = (% .2f,% .2f,% .2f)" % (mechpart0.x._value(), mechpart0.y._value(), mechpart0.z._value()),
-          "\ttouch = % .3f\tgyro = % .3f" % (creature.getNeuro(0).state._value(), creature.getNeuro(1).state._value()))
+    print(
+        "Step# = %d" % frams.Simulator.stepNumber._value(),
+        "\tSimulated_creatures =",
+        frams.Populations[0].size._value(),
+        "\tpart0_xyz = (% .2f,% .2f,% .2f)" % (mechpart0.x._value(), mechpart0.y._value(), mechpart0.z._value()),
+        "\ttouch = % .3f\tgyro = % .3f" % (creature.getNeuro(0).state._value(), creature.getNeuro(1).state._value()),
+    )
 frams.Simulator.stop()
 
 # changing expdef
@@ -88,12 +104,14 @@ frams.ExpProperties.evalcount = evaluations
 frams.ExpProperties.cr_v = 1
 frams.ExpProperties.evalplan = ":velocity,vertpos,fit_stdev,time"
 frams.GenePools[0].add(testgenotype)
-frams.ExpProperties.evalsavefile = ""  # no need to store results in a file - we will get evaluations directly from Genotype's "data" field
+frams.ExpProperties.evalsavefile = (
+    ""  # no need to store results in a file - we will get evaluations directly from Genotype's "data" field
+)
 frams.Simulator.init()
 frams.Simulator.start()
 # step = frams.Simulator.step  # cache reference to avoid repeated lookup in the loop (just for performance)
 # while frams.Simulator.running._int():  # standard-eval.expdef sets running to 0 when the evaluation is complete
-#	step()
+# step()
 frams.Simulator.eval("while(Simulator.running) Simulator.step();")  # loop in FramScript much faster than loop in python
 for g in frams.GenePools[0]:  # loop over all genotypes, even though we know we added only one
     serialized_dict = frams.String.serialize(g.data[frams.ExpProperties.evalsavedata._value()])
@@ -110,9 +128,13 @@ m = frams.ModelGeometry.forModel(frams.Model.newFromString(geno))
 m.geom_density = 20
 for p in m.voxels():
     # print('%f %f %f ' % (p.x._value(), p.y._value(), p.z._value()))
-    matrix[int(p.x._value() * 5 + 2), int(p.y._value() * 5 + 5), int(p.z._value() * 5 + 6)] += 1  # scaling and offsets adjusted manually to fit the matrix nicely
+    matrix[int(p.x._value() * 5 + 2), int(p.y._value() * 5 + 5), int(p.z._value() * 5 + 6)] += (
+        1  # scaling and offsets adjusted manually to fit the matrix nicely
+    )
 matrix = np.sum(matrix, axis=1)  # sum along axis, make 2D from 3D ("projection")
-np.set_printoptions(formatter={'int': lambda x: ('.' if x == 0 else str(x // 18))})  # print zeros as dots, x//18 to fit a larger range into a single digit
+np.set_printoptions(
+    formatter={"int": lambda x: ("." if x == 0 else str(x // 18))}
+)  # print zeros as dots, x//18 to fit a larger range into a single digit
 print(matrix)
 np.set_printoptions()  # avoids straange python errors: frams.py, line 48, in __del__ AttributeError: 'NoneType' object has no attribute 'extFree'
 

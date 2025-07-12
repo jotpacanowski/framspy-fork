@@ -1,8 +1,8 @@
-_SERIALIZED_STRING = '@Serialized:{}'
+_SERIALIZED_STRING = "@Serialized:{}"
 _DOUBLE_QUOTED = '"{}"'
 _FIELD_STRING = '"{}":{}'
-_LIST_STRING = '[{}]'
-_OBJECT_STRING = '{{{}}}'
+_LIST_STRING = "[{}]"
+_OBJECT_STRING = "{{{}}}"
 
 
 def _serialize_value(value):
@@ -17,7 +17,7 @@ def _serialize(target):
     if isinstance(target, str):
         return _serialize_string(target)
     if target is None:
-        return 'null'
+        return "null"
     return str(target)
 
 
@@ -40,8 +40,8 @@ def _to_field_string(key, value):
 
 
 def _to_list_string(target):
-    return _LIST_STRING.format(','.join(target))
+    return _LIST_STRING.format(",".join(target))
 
 
 def _to_object_string(target):
-    return _OBJECT_STRING.format(','.join(target))
+    return _OBJECT_STRING.format(",".join(target))

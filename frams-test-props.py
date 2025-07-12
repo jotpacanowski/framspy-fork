@@ -8,7 +8,10 @@ frams.init(*(sys.argv[1:]))
 
 
 def printSingleProperty(v, p):
-    print(' * %s "%s" type="%s" flags=%d group=%d help="%s"' % (v._propId(p), v._propName(p), v._propType(p), v._propFlags(p), v._propGroup(p), v._propHelp(p)))
+    print(
+        ' * %s "%s" type="%s" flags=%d group=%d help="%s"'
+        % (v._propId(p), v._propName(p), v._propType(p), v._propFlags(p), v._propGroup(p), v._propHelp(p))
+    )
 
 
 def printFramsProperties(v):
@@ -30,13 +33,13 @@ def printFramsProperties(v):
         # So these inefficient _memberCount() and _groupMember() are provided
         # for the sake of completeness, but don't use them without a good reason ;-)
         for g in range(G):
-            print('\n------------------- Group #%d: %s -------------------' % (g, v._groupName(g)))
+            print("\n------------------- Group #%d: %s -------------------" % (g, v._groupName(g)))
             for m in range(v._memberCount(g)):
                 p = v._groupMember(g, m)
                 printSingleProperty(v, p)
-    print('\n\n')
+    print("\n\n")
 
 
 printFramsProperties(frams.World)
 
-printFramsProperties(frams.GenePools[0].add('X'))  # add('X') returns a Genotype object
+printFramsProperties(frams.GenePools[0].add("X"))  # add('X') returns a Genotype object

@@ -34,14 +34,13 @@ class ExtValue(object):
     Read the documentation of the 'frams' module for more information.
     """
 
-    _reInsideParens = re.compile('\((.*)\)')
-    _reservedWords = ['import']
+    _reInsideParens = re.compile("\((.*)\)")
+    _reservedWords = ["import"]
     """This list is scanned during every attribute access,
     only add what is really clashing with Framsticks properties
     """
-    _reservedXWords = ['x' + word for word in _reservedWords]
-    _encoding = 'utf-8'
-
+    _reservedXWords = ["x" + word for word in _reservedWords]
+    _encoding = "utf-8"
 
     def __init__(self, arg=None, dontinit=False):
         if dontinit:
@@ -57,26 +56,20 @@ class ExtValue(object):
         else:
             raise ctypes.ArgumentError("Can't make ExtValue from '%s' (%s)" % (str(arg), type(arg)))
 
-
     def __del__(self):
         c_api.extFree(self.__ptr)
-
 
     def _initFromNull(self):
         self.__ptr = c_api.extFromNull()
 
-
     def _initFromInt(self, v):
         self.__ptr = c_api.extFromInt(v)
-
 
     def _initFromDouble(self, v):
         self.__ptr = c_api.extFromDouble(v)
 
-
     def _initFromString(self, v):
         self.__ptr = c_api.extFromString(ExtValue._cstringFromPython(v))
-
 
     @classmethod
     def _makeNull(cls, v):
@@ -84,13 +77,11 @@ class ExtValue(object):
         e._initFromNull()
         return e
 
-
     @classmethod
     def _makeInt(cls, v):
         e = ExtValue(None, True)
         e._initFromInt(v)
         return e
-
 
     @classmethod
     def _makeDouble(cls, v):
@@ -98,13 +89,11 @@ class ExtValue(object):
         e._initFromDouble(v)
         return e
 
-
     @classmethod
     def _makeString(cls, v):
         e = ExtValue(None, True)
         e._initFromString(v)
         return e
-
 
     @classmethod
     def _rootObject(cls):
@@ -112,20 +101,16 @@ class ExtValue(object):
         e.__ptr = c_api.rootObject()
         return e
 
-
     @classmethod
     def _stringFromC(cls, cptr):
         return cptr.decode(ExtValue._encoding)
-
 
     @classmethod
     def _cstringFromPython(cls, s):
         return ctypes.c_char_p(s.encode(ExtValue._encoding))
 
-
     def _type(self):
         return c_api.extType(self.__ptr)
-
 
     def _class(self):
         cls = c_api.extClass(self.__ptr)
@@ -133,7 +118,6 @@ class ExtValue(object):
             return None
         else:
             return ExtValue._stringFromC(cls)
-
 
     def _value(self):
         t = self._type()
@@ -148,67 +132,51 @@ class ExtValue(object):
         else:
             return self
 
-
     def _int(self):
         return c_api.extIntValue(self.__ptr)
-
 
     def _double(self):
         return c_api.extDoubleValue(self.__ptr)
 
-
     def _string(self):
         return ExtValue._stringFromC(c_api.extStringValue(self.__ptr))
-
 
     def _propCount(self):
         return c_api.extPropCount(self.__ptr)
 
-
     def _propId(self, i):
         return ExtValue._stringFromC(c_api.extPropId(self.__ptr, i))
-
 
     def _propName(self, i):
         return ExtValue._stringFromC(c_api.extPropName(self.__ptr, i))
 
-
     def _propType(self, i):
         return ExtValue._stringFromC(c_api.extPropType(self.__ptr, i))
 
-
     def _propHelp(self, i):
         h = c_api.extPropHelp(self.__ptr, i)  # unlike other string fields, help is sometimes NULL
-        return ExtValue._stringFromC(h) if h is not None else ''
-
+        return ExtValue._stringFromC(h) if h is not None else ""
 
     def _propFlags(self, i):
         return c_api.extPropFlags(self.__ptr, i)
 
-
     def _propGroup(self, i):
         return c_api.extPropGroup(self.__ptr, i)
-
 
     def _groupCount(self):
         return c_api.extGroupCount(self.__ptr)
 
-
     def _groupName(self, i):
         return ExtValue._stringFromC(c_api.extGroupName(self.__ptr, i))
-
 
     def _groupMember(self, g, i):
         return c_api.extGroupMember(self.__ptr, g, i)
 
-
     def _memberCount(self, g):
         return c_api.extMemberCount(self.__ptr, g)
 
-
     def __str__(self):
         return self._string()
-
 
     def __dir__(self):
         ids = dir(type(self))
@@ -216,26 +184,24 @@ class ExtValue(object):
             for i in range(c_api.extPropCount(self.__ptr)):
                 name = ExtValue._stringFromC(c_api.extPropId(self.__ptr, i))
                 if name in ExtValue._reservedWords:
-                    name = 'x' + name
+                    name = "x" + name
                 ids.append(name)
         return ids
 
-
     def __getattr__(self, key):
-        if key[0] == '_':
+        if key[0] == "_":
             return self.__dict__[key]
         if key in ExtValue._reservedXWords:
             key = key[1:]
         prop_i = c_api.extPropFind(self.__ptr, ExtValue._cstringFromPython(key))
         if prop_i < 0:
-            raise AttributeError('no ' + str(key) + ' in ' + str(self))
+            raise AttributeError("no " + str(key) + " in " + str(self))
         t = ExtValue._stringFromC(c_api.extPropType(self.__ptr, prop_i))
-        if t[0] == 'p':
+        if t[0] == "p":
             arg_types = ExtValue._reInsideParens.search(t)
             if arg_types:
                 # anyone wants to add argument type validation using param type declarations?
-                arg_types = arg_types.group(1).split(',')
-
+                arg_types = arg_types.group(1).split(",")
 
             def fun(*args):
                 ext_args = []
@@ -252,16 +218,14 @@ class ExtValue(object):
                 ret.__ptr = c_api.extPropCall(self.__ptr, prop_i, len(args), args_array)
                 return ret
 
-
             return fun
         else:
             ret = ExtValue(None, True)
             ret.__ptr = c_api.extPropGet(self.__ptr, prop_i)
             return ret
 
-
     def __setattr__(self, key, value):
-        if key[0] == '_':
+        if key[0] == "_":
             self.__dict__[key] = value
         else:
             if key in ExtValue._reservedXWords:
@@ -273,14 +237,11 @@ class ExtValue(object):
                 value = ExtValue(value)
             c_api.extPropSet(self.__ptr, prop_i, value.__ptr)
 
-
     def __getitem__(self, key):
         return self.get(key)
 
-
     def __setitem__(self, key, value):
         return self.set(key, value)
-
 
     def __len__(self):
         try:
@@ -288,17 +249,14 @@ class ExtValue(object):
         except Exception:
             return 0
 
-
     def __iter__(self):
         class It(object):
             def __init__(self, container, frams_it):
                 self.container = container
                 self.frams_it = frams_it
 
-
             def __iter__(self):
                 return self
-
 
             def __next__(self):
                 if self.frams_it.next._int() != 0:
@@ -326,28 +284,32 @@ def init(*args):
     frams_d = None
     frams_D = None
     lib_path = None
-    lib_name = ('frams-objects.dylib' if sys.platform == 'darwin' else 'frams-objects.so') if os.name == 'posix' else 'frams-objects.dll'
+    lib_name = (
+        ("frams-objects.dylib" if sys.platform == "darwin" else "frams-objects.so") if os.name == "posix" else "frams-objects.dll"
+    )
     initargs = []
     for a in args:
-        if a[:2] == '-d':
+        if a[:2] == "-d":
             frams_d = a
-        elif a[:2] == '-D':
+        elif a[:2] == "-D":
             frams_D = a
-        elif a[:2] == '-L':
+        elif a[:2] == "-L":
             lib_name = a[2:]
-        elif a[:2] == '-t':
+        elif a[:2] == "-t":
             # Due to performance penalty, only use if you are really calling methods from different threads.
             print("frams.py: thread synchronization enabled.")
             from functools import wraps
             from threading import RLock
-            
+
             def threads_synchronized(lock):
                 def wrapper(f):
                     @wraps(f)
                     def inner_wrapper(*args, **kwargs):
                         with lock:
                             return f(*args, **kwargs)
+
                     return inner_wrapper
+
                 return wrapper
 
             thread_synchronizer = threads_synchronized(RLock())
@@ -364,9 +326,9 @@ def init(*args):
     if lib_path is None:
         # TODO: use environment variable and/or the zip distribution we are in when the path is not specified in arg
         # for now just assume the current dir is Framsticks
-        lib_path = '.'
+        lib_path = "."
 
-    if os.name == 'nt':
+    if os.name == "nt":
         if sys.version_info < (3, 8):
             original_dir = os.getcwd()
             # because under Windows, frams-objects.dll requires other dll's which reside in the same directory,
@@ -380,12 +342,12 @@ def init(*args):
 
     # for the hypothetical case without lib_path, the abs_data must be obtained from somewhere else
     if frams_d is None:
-        frams_d = '-d' + abs_data
+        frams_d = "-d" + abs_data
     if frams_D is None:
-        frams_D = '-D' + abs_data
+        frams_D = "-D" + abs_data
     initargs.insert(0, frams_d)
     initargs.insert(0, frams_D)
-    initargs.insert(0, 'dummy.exe')  # as an offset, 0th arg is by convention app name
+    initargs.insert(0, "dummy.exe")  # as an offset, 0th arg is by convention app name
 
     global c_api  # access global variable
     if lib_path is not None:
@@ -407,10 +369,13 @@ def init(*args):
         # If you want separate independent copies, read the comment at the top of this file
         # on using the "multiprocessing" module.
     except OSError:
-        print("*** Could not find or open '%s' from '%s'.\n*** Did you provide proper arguments and is this file readable?\n" % (lib_name, os.getcwd()))
+        print(
+            "*** Could not find or open '%s' from '%s'.\n*** Did you provide proper arguments and is this file readable?\n"
+            % (lib_name, os.getcwd())
+        )
         raise
 
-    if os.name == 'nt' and sys.version_info < (3, 8):
+    if os.name == "nt" and sys.version_info < (3, 8):
         # restore current working dir after loading the library so Framsticks sees the expected directory
         os.chdir(original_dir)
 
@@ -480,7 +445,7 @@ def init(*args):
                 attr = attr._value()
             setattr(sys.modules[__name__], n, attr)
 
-    print('Using Framsticks version: ' + str(Simulator.version_string))  # type: ignore # noqa: F821
-    print('Home (writable) dir     : ' + home_dir)  # type: ignore # noqa: F821
-    print('Resources dir           : ' + res_dir)  # type: ignore # noqa: F821
+    print("Using Framsticks version: " + str(Simulator.version_string))  # type: ignore # noqa: F821
+    print("Home (writable) dir     : " + home_dir)  # type: ignore # noqa: F821
+    print("Resources dir           : " + res_dir)  # type: ignore # noqa: F821
     print()

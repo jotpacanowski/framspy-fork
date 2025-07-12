@@ -19,8 +19,8 @@ print()
 
 
 def extValueDetails(v):
-	"""A helper function to display basic information about a variable of type ExtValue."""
-	return '\t"' + str(v) + '"    frams type=' + str(v._type()) + '    frams class=' + str(v._class()) + '    python type=' + str(type(v._value()))
+    """A helper function to display basic information about a variable of type ExtValue."""
+    return '\t"' + str(v) + '"    frams type=' + str(v._type()) + '    frams class=' + str(v._class()) + '    python type=' + str(type(v._value()))
 
 
 dic_as_string = '[100,2.2,"abc",[null,[],{}],XYZ[9,8,7]]'
@@ -32,7 +32,7 @@ print("More specifically, it is:")
 print(extValueDetails(v))
 print("Even though it is ExtValue (Framsticks' Vector), it supports iteration like a python vector, so let's inspect its elements:")
 for e in v:
-	print(extValueDetails(e))
+    print(extValueDetails(e))
 
 print("\nNow let's play with the Framsticks simulator. Let's create a Genotype object and set fields in its custom 'data' dictionary.")
 g = frams.GenePools[0].add('X')
@@ -47,10 +47,10 @@ print(extValueDetails(g))
 
 print("Let's add a few mutants and display their data:")
 for more in range(5):
-	frams.GenePools[0].add(frams.GenMan.mutate(g.geno))
+    frams.GenePools[0].add(frams.GenMan.mutate(g.geno))
 
 for g in frams.GenePools[0]:
-	print("\t%d. name='%s'\tgenotype='%s'\tdata=%s" % (g.index._value(), str(g.name), str(g.genotype), str(g.data)))
+    print("\t%d. name='%s'\tgenotype='%s'\tdata=%s" % (g.index._value(), str(g.name), str(g.genotype), str(g.data)))
 
 print("Let's now change some property of the simulation. Current water level is", frams.World.wrldwat)
 frams.World.wrldwat = 0.5
@@ -70,13 +70,13 @@ frams.Simulator.init()  # adds initial_genotype to gene pool (calls onInit() fro
 frams.Simulator.start()  # this does not actually start the simulation, just sets the "Simulator.running" status variable
 step = frams.Simulator.step  # cache reference to avoid repeated lookup in the loop (just for performance)
 for s in range(15):
-	step()  # first step performs selection and revives one genotype according to standard.expdef rules
-	creature = frams.Populations[0][0]  # FramScript Creature object
-	mechpart0 = creature.getMechPart(0)
-	print('Step# = %d' % frams.Simulator.stepNumber._value(),
-	      '\tSimulated_creatures =', frams.Populations[0].size._value(),
-	      "\tpart0_xyz = (% .2f,% .2f,% .2f)" % (mechpart0.x._value(), mechpart0.y._value(), mechpart0.z._value()),
-	      "\ttouch = % .3f\tgyro = % .3f" % (creature.getNeuro(0).state._value(), creature.getNeuro(1).state._value()))
+    step()  # first step performs selection and revives one genotype according to standard.expdef rules
+    creature = frams.Populations[0][0]  # FramScript Creature object
+    mechpart0 = creature.getMechPart(0)
+    print('Step# = %d' % frams.Simulator.stepNumber._value(),
+          '\tSimulated_creatures =', frams.Populations[0].size._value(),
+          "\tpart0_xyz = (% .2f,% .2f,% .2f)" % (mechpart0.x._value(), mechpart0.y._value(), mechpart0.z._value()),
+          "\ttouch = % .3f\tgyro = % .3f" % (creature.getNeuro(0).state._value(), creature.getNeuro(1).state._value()))
 frams.Simulator.stop()
 
 # changing expdef
@@ -96,8 +96,8 @@ frams.Simulator.start()
 #	step()
 frams.Simulator.eval("while(Simulator.running) Simulator.step();")  # loop in FramScript much faster than loop in python
 for g in frams.GenePools[0]:  # loop over all genotypes, even though we know we added only one
-	serialized_dict = frams.String.serialize(g.data[frams.ExpProperties.evalsavedata._value()])
-	print(json.loads(serialized_dict._string()))
+    serialized_dict = frams.String.serialize(g.data[frams.ExpProperties.evalsavedata._value()])
+    print(json.loads(serialized_dict._string()))
 
 # sampling a Model in 3D
 geno = "RXX(X,CXXX)"
@@ -109,8 +109,8 @@ matrix = np.zeros((20, 20, 20), dtype=int)  # 3D matrix, "voxels"
 m = frams.ModelGeometry.forModel(frams.Model.newFromString(geno))
 m.geom_density = 20
 for p in m.voxels():
-	# print('%f %f %f ' % (p.x._value(), p.y._value(), p.z._value()))
-	matrix[int(p.x._value() * 5 + 2), int(p.y._value() * 5 + 5), int(p.z._value() * 5 + 6)] += 1  # scaling and offsets adjusted manually to fit the matrix nicely
+    # print('%f %f %f ' % (p.x._value(), p.y._value(), p.z._value()))
+    matrix[int(p.x._value() * 5 + 2), int(p.y._value() * 5 + 5), int(p.z._value() * 5 + 6)] += 1  # scaling and offsets adjusted manually to fit the matrix nicely
 matrix = np.sum(matrix, axis=1)  # sum along axis, make 2D from 3D ("projection")
 np.set_printoptions(formatter={'int': lambda x: ('.' if x == 0 else str(x // 18))})  # print zeros as dots, x//18 to fit a larger range into a single digit
 print(matrix)

@@ -1,13 +1,32 @@
 # default Ruff config: https://docs.astral.sh/ruff/configuration/
 # rules: https://docs.astral.sh/ruff/rules/
 
+# line-length = 88
+line-length = 130
+
 extend-exclude = ["dissimilarity"]
 
 [lint]
-select = ["E4", "E7", "E9", "F"]
+select = [
+    "F",
+    "E",
+    "I",  # sort imports
+    # "UP",
+    "UP004",  # "class Foo(object)" not needed in Python 3
+    "UP035",
+    "FURB",
+]
 
-# Ignore unused imports
-ignore = ["F401", "E401"]
+ignore = [
+    # unused imports
+    "F401",
+    "E401",
+
+    "E501", # line-too-long
+
+    # UP rules:
+    "UP031",
+]
 
 
 [lint.per-file-ignores]

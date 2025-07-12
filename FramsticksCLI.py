@@ -5,13 +5,14 @@ import sys
 from enum import Enum
 from itertools import count  # for tracking multiple instances
 from subprocess import PIPE, Popen, check_output
-from typing import List  # to be able to specify a type hint of list(something)
 
 import numpy as np
 
 from framsfiles import reader as framsreader
 from framsfiles import writer as framswriter
 
+# from typing import list  # to be able to specify a type hint of list(something)
+# UP035 `typing.list` is deprecated, use `list` instead
 
 class FramsticksCLI:
     """Note: instead of this class, you should use the simpler, faster, and more reliable FramsticksLib.py.
@@ -148,7 +149,7 @@ class FramsticksCLI:
                 output += msg + "\n"
         return output
 
-    def __runCommand(self, command, genotypes, result_file_name, saveformat) -> List[str]:
+    def __runCommand(self, command, genotypes, result_file_name, saveformat) -> list[str]:
         filenames_rel = []  # list of file names with input data for the command
         filenames_abs = []  # same list but absolute paths actually used
         if saveformat == self.GENO_SAVE_FILE_FORMAT["RAWGENO"]:
@@ -208,7 +209,7 @@ class FramsticksCLI:
         self.__cleanUpCommandResults(files)
         return genotype
 
-    def evaluate(self, genotype_list: List[str]):
+    def evaluate(self, genotype_list: list[str]):
         """
         Returns:
             List of dictionaries containing the performance of genotypes evaluated with self.EVALUATE_COMMAND.
@@ -231,7 +232,7 @@ class FramsticksCLI:
             print("Evaluating genotype: no performance data was returned in", self.EVALUATE_FILE)  # we do not delete files here
             return None
 
-    def mutate(self, genotype_list: List[str]) -> List[str]:
+    def mutate(self, genotype_list: list[str]) -> list[str]:
         """
         Returns:
             The genotype(s) of the mutated source genotype(s). self.GENOTYPE_INVALID for genotypes whose mutation failed (for example because the source genotype was invalid).
@@ -257,7 +258,7 @@ class FramsticksCLI:
         self.__cleanUpCommandResults(files)
         return child_genotype
 
-    def dissimilarity(self, genotype_list: List[str]) -> np.ndarray:
+    def dissimilarity(self, genotype_list: list[str]) -> np.ndarray:
         """
         Returns:
             A square array with dissimilarities of each pair of genotypes.
@@ -285,7 +286,7 @@ class FramsticksCLI:
         self.__cleanUpCommandResults(files)
         return square_matrix
 
-    def isValid(self, genotype_list: List[str]) -> List[bool]:
+    def isValid(self, genotype_list: list[str]) -> list[bool]:
         assert isinstance(
             genotype_list, list
         )  # because in python str has similar capabilities as list and here it would pretend to work too, so to avoid any ambiguity

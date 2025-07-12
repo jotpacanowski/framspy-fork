@@ -4,11 +4,12 @@ import os
 import random
 import sys
 from enum import Enum, auto, unique
-from typing import List  # to be able to specify a type hint of list(something)
 
 import numpy as np
 
 import frams
+
+# from typing import List  # to be able to specify a type hint of list(something)
 
 
 @unique
@@ -170,7 +171,7 @@ class FramsticksLib:
         valid &= value_within_constraint(C, max_numconnections)
         return valid
 
-    def evaluate(self, genotype_list: List[str]):
+    def evaluate(self, genotype_list: list[str]):
         """
         Returns:
             List of dictionaries containing the performance of genotypes evaluated using self.EVALUATION_SETTINGS_FILE.
@@ -227,7 +228,7 @@ class FramsticksLib:
 
         return results
 
-    def mutate(self, genotype_list: List[str]) -> List[str]:
+    def mutate(self, genotype_list: list[str]) -> list[str]:
         """
         Returns:
             The genotype(s) of the mutated source genotype(s). self.GENOTYPE_INVALID for genotypes whose mutation failed (for example because the source genotype was invalid).
@@ -266,7 +267,7 @@ class FramsticksLib:
             offspring_genotype = random.choice([genotype_parent1, genotype_parent2])
         return offspring_genotype
 
-    def dissimilarity(self, genotype_list: List[str], method: DissimMethod) -> np.ndarray:
+    def dissimilarity(self, genotype_list: list[str], method: DissimMethod) -> np.ndarray:
         """
         :param method, see DissimMethod.
         :return: A square array with dissimilarities of each pair of genotypes.
@@ -401,7 +402,7 @@ class FramsticksLib:
             return g  # best found so far (closest to target numbers of parts and neurons)
         return None
 
-    def isValid(self, genotype_list: List[str]) -> List[bool]:
+    def isValid(self, genotype_list: list[str]) -> list[bool]:
         """
         :returns: genetic validity (i.e., not based on trying to build creatures from provided genotypes). For a more thorough check, see isValidCreature().
         """
@@ -415,7 +416,7 @@ class FramsticksLib:
             raise RuntimeError("Tested %d genotypes, received %d validity values" % (len(genotype_list), len(valid)))
         return valid
 
-    def isValidCreature(self, genotype_list: List[str]) -> List[bool]:
+    def isValidCreature(self, genotype_list: list[str]) -> list[bool]:
         """
         :returns: validity of the genotype when revived. Apart from genetic validity,
           this includes detecting problems that may arise when building a Creature from Genotype,

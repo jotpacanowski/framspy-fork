@@ -1,11 +1,12 @@
 import sys
 from base64 import urlsafe_b64encode
 from time import perf_counter, strftime
-from typing import List  # to be able to specify a type hint of list(something)
 
 import numpy as np
 
 from FramsticksLib import FramsticksLib
+
+# from typing import List  # to be able to specify a type hint of list(something)
 
 
 class FramsticksLibCompetition(FramsticksLib):
@@ -74,7 +75,7 @@ class FramsticksLibCompetition(FramsticksLib):
                 pass  # leave 'result' as it is, the caller expects such an incomplete structure (with 'evaluations': None) on evaluation failure
             return result[0]
 
-    def evaluate(self, genotype_list: List[str]):
+    def evaluate(self, genotype_list: list[str]):
         """
         :return: a list of fitness values (see also SIMPLE_FITNESS_FORMAT), with None for genotypes that are not valid.
         """

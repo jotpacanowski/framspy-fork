@@ -59,7 +59,9 @@ class FramsticksCLI:
         self.frams_exe = framsexe if framsexe is not None else 'frams.exe' if os.name == "nt" else 'frams.linux'
         self.writing_path = None
         mainpath = os.path.join(self.frams_path, self.frams_exe)
-        exe_call = [mainpath, '-Q', '-s', '-c', '-icliutils.ini']  # -c will be ignored in Windows Framsticks (this option is meaningless because the Windows version does not support color console, so no need to deactivate this feature using -c)
+        exe_call = [mainpath, '-Q', '-s', '-c', '-icliutils.ini']
+        # -c will be ignored in Windows Framsticks (this option is meaningless
+        #    because the Windows version does not support color console, so no need to deactivate this feature using -c)
         exe_call_to_get_version = [mainpath, '-V']
         exe_call_to_get_path = [mainpath, '-?']
         try:
@@ -263,7 +265,10 @@ class FramsticksCLI:
         assert square_matrix.shape == EXPECTED_SHAPE, f"Not a correct dissimilarity matrix, expected {EXPECTED_SHAPE}"
         for i in range(len(square_matrix)):
             assert square_matrix[i][i] == 0, "Not a correct dissimilarity matrix, diagonal expected to be 0"
-        assert (square_matrix == square_matrix.T).all(), "Probably not a correct dissimilarity matrix, expecting symmetry, verify this"  # could introduce tolerance in comparison (e.g. class field DISSIMIL_DIFF_TOLERANCE=10^-5) so that miniscule differences do not fail here
+
+        # could introduce tolerance in comparison (e.g. class field DISSIMIL_DIFF_TOLERANCE=10^-5) so that miniscule differences do not fail here
+        assert (square_matrix == square_matrix.T).all(), "Probably not a correct dissimilarity matrix, expecting symmetry, verify this"
+        
         self.__cleanUpCommandResults(files)
         return square_matrix
 

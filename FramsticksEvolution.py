@@ -8,7 +8,16 @@ from FramsticksLib import FramsticksLib
 # Note: this may be less efficient than running the evolution directly in Framsticks, so if performance is key, compare both options.
 
 
-FITNESS_VALUE_INFEASIBLE_SOLUTION = -999999.0  # DEAP expects fitness to always be a real value (not None), so this special value indicates that a solution is invalid, incorrect, or infeasible. [Related: https://github.com/DEAP/deap/issues/30 ]. Using float('-inf') or -sys.float_info.max here causes DEAP to silently exit. If you are not using DEAP, set this constant to None, float('nan'), or another special/non-float value to avoid clashing with valid real fitness values, and handle such solutions appropriately as a separate case.
+FITNESS_VALUE_INFEASIBLE_SOLUTION = -999999.0
+"""DEAP expects fitness to always be a real value (not None),
+so this special value indicates that a solution is invalid, incorrect, or infeasible.
+
+[Related: https://github.com/DEAP/deap/issues/30 ].
+
+Using float('-inf') or -sys.float_info.max here causes DEAP to silently exit.
+If you are not using DEAP, set this constant to None, float('nan'), or another special/non-float value to avoid clashing with valid real fitness values,
+and handle such solutions appropriately as a separate case.
+"""
 
 
 def genotype_within_constraint(genotype, dict_criteria_values, criterion_name, constraint_value):
@@ -17,14 +26,21 @@ def genotype_within_constraint(genotype, dict_criteria_values, criterion_name, c
         actual_value = dict_criteria_values[criterion_name]
         if actual_value > constraint_value:
             if REPORT_CONSTRAINT_VIOLATIONS:
-                print('Genotype "%s" assigned a special ("infeasible solution") fitness because it violates constraint "%s": %s exceeds the threshold of %s' % (genotype, criterion_name, actual_value, constraint_value))
+                print('Genotype "%s" assigned a special ("infeasible solution") fitness because it violates constraint "%s": %s exceeds the threshold of %s'
+                      % (genotype, criterion_name, actual_value, constraint_value))
             return False
     return True
 
 
 def frams_evaluate(frams_lib, individual):
-    FITNESS_CRITERIA_INFEASIBLE_SOLUTION = [FITNESS_VALUE_INFEASIBLE_SOLUTION] * len(OPTIMIZATION_CRITERIA)  # this special fitness value indicates that the solution should not be propagated via selection ("that genotype is invalid"). The floating point value is only used for compatibility with DEAP. If you implement your own optimization algorithm, instead of a negative value in this constant, use a special value like None to properly distinguish between feasible and infeasible solutions.
-    genotype = individual[0]  # individual[0] because we can't (?) have a simple str as a DEAP genotype/individual, only list of str.
+    FITNESS_CRITERIA_INFEASIBLE_SOLUTION = [FITNESS_VALUE_INFEASIBLE_SOLUTION] * len(OPTIMIZATION_CRITERIA)
+    # this special fitness value indicates that the solution should not be propagated via selection ("that genotype is invalid").
+    # The floating point value is only used for compatibility with DEAP.
+    # If you implement your own optimization algorithm, instead of a negative value in this constant,
+    # use a special value like None to properly distinguish between feasible and infeasible solutions.
+    
+    genotype = individual[0]
+    # individual[0] because we can't (?) have a simple str as a DEAP genotype/individual, only list of str.
     data = frams_lib.evaluate([genotype])
     # print("Evaluated '%s'" % genotype, 'evaluation is:', data)
     valid = True
@@ -33,7 +49,9 @@ def frams_evaluate(frams_lib, individual):
         evaluation_data = first_genotype_data["evaluations"]
         default_evaluation_data = evaluation_data[""]
         fitness = [default_evaluation_data[crit] for crit in OPTIMIZATION_CRITERIA]
-    except (KeyError, TypeError) as e:  # the evaluation may have failed for an invalid genotype (such as X[@][@] with "Don't simulate genotypes with warnings" option), or because the creature failed to stabilize, or for some other reason
+    except (KeyError, TypeError) as e:
+        # the evaluation may have failed for an invalid genotype (such as X[@][@] with "Don't simulate genotypes with warnings" option),
+        # or because the creature failed to stabilize, or for some other reason
         valid = False
         print('Problem "%s" so could not evaluate genotype "%s", hence assigned it a special ("infeasible solution") fitness value: %s' % (str(e), genotype, FITNESS_CRITERIA_INFEASIBLE_SOLUTION))
     if valid:
@@ -66,8 +84,10 @@ def frams_getsimplest(frams_lib, genetic_format, initial_genotype):
 
 
 def is_feasible_fitness_value(fitness_value: float) -> bool:
-    assert isinstance(fitness_value, float), f"feasible_fitness({fitness_value}): argument is not of type 'float', it is of type '{type(fitness_value)}'"  # since we are using DEAP, we unfortunately must represent the fitness of an "infeasible solution" as a float...
-    return fitness_value != FITNESS_VALUE_INFEASIBLE_SOLUTION  # ...so if a valid solution happens to have fitness equal to this special value, such a solution will be considered infeasible :/
+    # since we are using DEAP, we unfortunately must represent the fitness of an "infeasible solution" as a float...
+    assert isinstance(fitness_value, float), f"feasible_fitness({fitness_value}): argument is not of type 'float', it is of type '{type(fitness_value)}'"
+    # ...so if a valid solution happens to have fitness equal to this special value, such a solution will be considered infeasible :/
+    return fitness_value != FITNESS_VALUE_INFEASIBLE_SOLUTION
 
 
 def is_feasible_fitness_criteria(fitness_criteria: tuple) -> bool:
@@ -114,10 +134,14 @@ def prepareToolbox(frams_lib, OPTIMIZATION_CRITERIA, tournament_size, genetic_fo
     toolbox.register("mate", frams_crossover, frams_lib)
     toolbox.register("mutate", frams_mutate, frams_lib)
     if len(OPTIMIZATION_CRITERIA) <= 1:
-        # toolbox.register("select", tools.selTournament, tournsize=tournament_size) # without explicitly filtering out infeasible solutions - eliminating/discriminating infeasible solutions during selection would only rely on their relatively poor fitness value
+        # toolbox.register("select", tools.selTournament, tournsize=tournament_size) # without explicitly filtering out infeasible solutions
+        #  - eliminating/discriminating infeasible solutions during selection would only rely on their relatively poor fitness value
+        #
         toolbox.register("select", selTournament_only_feasible, tournsize=tournament_size)
     else:
-        # toolbox.register("select", selNSGA2) # without explicitly filtering out infeasible solutions - eliminating/discriminating infeasible solutions during selection would only rely on their relatively poor fitness value
+        # toolbox.register("select", selNSGA2) # without explicitly filtering out infeasible solutions - eliminating/discriminating
+        # infeasible solutions during selection would only rely on their relatively poor fitness value
+        #
         toolbox.register("select", selNSGA2_only_feasible)
     return toolbox
 
@@ -161,7 +185,9 @@ def save_genotypes(filename, OPTIMIZATION_CRITERIA, hof):
         for ind in hof:
             keyval = {}
             for i, k in enumerate(OPTIMIZATION_CRITERIA):  # construct a dictionary with criteria names and their values
-                keyval[k] = ind.fitness.values[i]  # TODO it would be better to save in Individual (after evaluation) all fields returned by Framsticks, and get these fields here, not just the criteria that were actually used as fitness in evolution.
+                keyval[k] = ind.fitness.values[i]  # TODO it would be better to save in Individual (after evaluation) all fields returned by Framsticks,
+                # and get these fields here, not just the criteria that were actually used as fitness in evolution.
+            
             # Note: prior to the release of Framsticks 5.0, saving e.g. numparts (i.e. P) without J,N,C breaks re-calcucation of P,J,N,C in Framsticks and they appear to be zero (nothing serious).
             outfile.write(framswriter.from_collection({"_classname": "org", "genotype": ind[0], **keyval}))
             outfile.write("\n")

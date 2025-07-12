@@ -35,16 +35,30 @@ class FramsticksLib:
     PRINT_FRAMSTICKS_OUTPUT: bool = False  # set to True for debugging
     DETERMINISTIC: bool = False  # set to True to have the same results in each run
 
-    GENOTYPE_INVALID: str = "/*invalid*/"  # this is how genotype invalidity is represented in Framsticks (Geno.format is 'invalid'). Mutation and crossover operators return such a genotype if they were unable to perform their operation (information about the cause is stored in the Geno.info field - see GenMan.cpp)
-    GENOTYPE_INVALID_OFFSPRING_SUBSTITUTE_ORIGINAL: bool = True  # if True, when mutation or crossover is unable to perform their operation for the provided genotype(s), return the original genotype (and print a warning). If this happens extremely rarely, it may be ignored - but if not, you need to identify the reason (e.g., particular genotypes that cause the problem), fix it or change the logic of your algorithm. A more strict approach is to keep this field False - then you must always check if GENOTYPE_INVALID was returned by mutate() or crossOver(), and handle this situation properly (e.g., choose different parent(s) for mutate() or crossOver() and repeat until you get a valid offspring).
+    GENOTYPE_INVALID: str = "/*invalid*/"
+    """
+    This is how genotype invalidity is represented in Framsticks (Geno.format is 'invalid').
+    Mutation and crossover operators return such a genotype if they were unable to perform their operation
+    (information about the cause is stored in the Geno.info field - see GenMan.cpp)
+    """
+    GENOTYPE_INVALID_OFFSPRING_SUBSTITUTE_ORIGINAL: bool = True
+    """
+    if True, when mutation or crossover is unable to perform their operation for the provided genotype(s),
+    return the original genotype (and print a warning). If this happens extremely rarely, it may be ignored - but if not,
+    you need to identify the reason (e.g., particular genotypes that cause the problem), fix it or change the logic of your algorithm.
+    A more strict approach is to keep this field False - then you must always check if GENOTYPE_INVALID was returned by mutate() or crossOver(),
+    and handle this situation properly (e.g., choose different parent(s) for mutate() or crossOver() and repeat until you get a valid offspring).
+    """
 
-    EVALUATION_SETTINGS_FILE = [  # all files MUST be compatible with the standard-eval expdef. The order they are loaded in is important!
+    EVALUATION_SETTINGS_FILE = [
         "eval-allcriteria.sim",  # a good trade-off in performance sampling period ("perfperiod") for vertpos and velocity
         # "deterministic.sim",  # turns off random noise (added for robustness) so that each evaluation yields identical performance values (causes "overfitting")
         # "sample-period-2.sim", # short performance sampling period so performance (e.g. vertical position) is sampled more often
         # "sample-period-longest.sim",  # increased performance sampling period so distance and velocity are measured rectilinearly
     ]
-
+    """All files MUST be compatible with the standard-eval expdef.
+    The order they are loaded in is important!
+    """
 
     # This function is not needed because in Python, "For efficiency reasons, each module is only imported once per interpreter session."
     # @staticmethod
@@ -55,12 +69,15 @@ class FramsticksLib:
     #	return frams
 
     def __init__(self, frams_path, frams_lib_name, sim_settings_files):
-        self.dissim_measure_density_distribution = None  # will be initialized only when necessary (for rare dissimilarity methods)
+        # will be initialized only when necessary (for rare dissimilarity methods)
+        self.dissim_measure_density_distribution = None
 
         if frams_lib_name is None:
-            frams.init(frams_path)  # could add support for setting alternative directories using -D and -d
+            # could add support for setting alternative directories using -D and -d
+            frams.init(frams_path)
         else:
-            frams.init(frams_path, "-L" + frams_lib_name)  # could add support for setting alternative directories using -D and -d
+            # could add support for setting alternative directories using -D and -d
+            frams.init(frams_path, "-L" + frams_lib_name)
 
         print('Available objects:', dir(frams))
         print()
@@ -86,7 +103,9 @@ class FramsticksLib:
             ec.close()
             print(ec.messages)  # output all caught messages
             if ec.error_count._value() > 0:
-                raise ValueError("Problem while importing file '%s'" % simfile)  # make missing files or incorrect paths fatal because error messages are easy to overlook in output, and these errors would not prevent Framsticks simulator from performing genetic operations, starting and running in evaluate()
+                # make missing files or incorrect paths fatal because error messages are easy to overlook in output,
+                #  and these errors would not prevent Framsticks simulator from performing genetic operations, starting and running in evaluate()
+                raise ValueError("Problem while importing file '%s'" % simfile)
 
 
     @staticmethod
@@ -117,7 +136,9 @@ class FramsticksLib:
     def satisfiesConstraints(self, genotype: str, max_numparts: int, max_numjoints: int, max_numneurons: int, max_numconnections: int, max_numgenochars: int) -> bool:
         """
         Verifies if the genotype satisfies complexity constraints without actually simulating it.
-        For example, if the genotype represents a phenotype with 1000 Parts, it will be much faster to check it using this function than to simulate the resulting creature using evaluate() only to learn that the number of its Parts exceeds your defined limit.
+        
+        For example, if the genotype represents a phenotype with 1000 Parts, it will be much faster to check it using this function
+        than to simulate the resulting creature using evaluate() only to learn that the number of its Parts exceeds your defined limit.
 
         :param genotype: the genotype to check
         :return: False if any constraint is violated or the genotype is invalid, else True. The constraint value of None means no constraint.
@@ -179,13 +200,15 @@ class FramsticksLib:
             if ec.error_count._value() > 0:
                 print('\nErrors while evaluating this genotype list:\n', genotype_list, sep='\t')
                 print(ec.messages)  # if errors occurred, output all caught messages for debugging
-                raise RuntimeError("[ERROR] %d error(s) and %d warning(s) while evaluating %d genotype(s)" % (ec.error_count._value(), ec.warning_count._value(), len(genotype_list)))  # make errors fatal; by default they stop the simulation anyway so let's not use potentially incorrect or partial results and fix the cause first.
+                # make errors fatal; by default they stop the simulation anyway so let's not use potentially incorrect or partial results and fix the cause first.
+                raise RuntimeError("[ERROR] %d error(s) and %d warning(s) while evaluating %d genotype(s)" % (ec.error_count._value(), ec.warning_count._value(), len(genotype_list)))
 
         results = []
         for g in frams.GenePools[0]:
             serialized_dict = frams.String.serialize(g.data[frams.ExpProperties.evalsavedata._value()])
             evaluations = json.loads(serialized_dict._string())  # Framsticks native ExtValue's get converted to native python types such as int, float, list, str.
-            # now, for consistency with FramsticksCLI.py, add "num" and "name" keys that are missing because we got data directly from Genotype, not from the file produced by standard-eval.expdef's function printStats(). What we do below is what printStats() does.
+            # now, for consistency with FramsticksCLI.py, add "num" and "name" keys that are missing because we got data directly from Genotype,
+            #  not from the file produced by standard-eval.expdef's function printStats(). What we do below is what printStats() does.
             result = {"num": g.num._value(), "name": g.name._value(), "evaluations": evaluations}
             results.append(result)
 
@@ -204,7 +227,8 @@ class FramsticksLib:
             offspring = frams.GenMan.mutate(frams.Geno.newFromString(genotype_parent))
             offspring_genotype = offspring.genotype._string()
             if offspring_genotype == self.GENOTYPE_INVALID and self.GENOTYPE_INVALID_OFFSPRING_SUBSTITUTE_ORIGINAL:
-                print('[WARN] mutate(%s) failed but you requested GENOTYPE_INVALID_OFFSPRING_SUBSTITUTE_ORIGINAL, so returning the original genotype instead. Reason for failure: %s' % (self.shortGenotype(genotype_parent), offspring.info._string()))
+                print('[WARN] mutate(%s) failed but you requested GENOTYPE_INVALID_OFFSPRING_SUBSTITUTE_ORIGINAL, so returning the original genotype instead. Reason for failure: %s'
+                       % (self.shortGenotype(genotype_parent), offspring.info._string()))
                 offspring_genotype = genotype_parent
             mutated.append(offspring_genotype)
         if len(genotype_list) != len(mutated):
@@ -220,7 +244,8 @@ class FramsticksLib:
         offspring = frams.GenMan.crossOver(frams.Geno.newFromString(genotype_parent1), frams.Geno.newFromString(genotype_parent2))
         offspring_genotype = offspring.genotype._string()
         if offspring_genotype == self.GENOTYPE_INVALID and self.GENOTYPE_INVALID_OFFSPRING_SUBSTITUTE_ORIGINAL:
-            print('[WARN] crossOver(%s, %s) failed but you requested GENOTYPE_INVALID_OFFSPRING_SUBSTITUTE_ORIGINAL, so returning a random parent instead. Reason for failure: %s' % (self.shortGenotype(genotype_parent1), self.shortGenotype(genotype_parent2), offspring.info._string()))
+            print('[WARN] crossOver(%s, %s) failed but you requested GENOTYPE_INVALID_OFFSPRING_SUBSTITUTE_ORIGINAL, so returning a random parent instead. Reason for failure: %s'
+                   % (self.shortGenotype(genotype_parent1), self.shortGenotype(genotype_parent2), offspring.info._string()))
             offspring_genotype = random.choice([genotype_parent1, genotype_parent2])
         return offspring_genotype
 
@@ -287,7 +312,9 @@ class FramsticksLib:
 
         :param initial_genotype: if not a specific genotype (which could facilitate greater variability of returned genotypes), try `getSimplest(format)`.
         :param iter_max: how many mutations can be used to generate a random genotype that fullfills target numbers of parts and neurons.
-        :param return_even_if_failed: if the target numbers of parts and neurons was not achieved, return the closest genotype that was found? Set it to False first to experimentally adjust `iter_max` so that in most calls this function returns a genotype with target numbers of parts and neurons, and then you can set this parameter to True if target numbers of parts and neurons are not absolutely required.
+        :param return_even_if_failed: if the target numbers of parts and neurons was not achieved, return the closest genotype that was found?
+            Set it to False first to experimentally adjust `iter_max` so that in most calls this function returns a genotype with target numbers of parts and neurons,
+            and then you can set this parameter to True if target numbers of parts and neurons are not absolutely required.
         :returns: a valid genotype or None if failed and `return_even_if_failed` is False.
         """
 
@@ -348,7 +375,9 @@ class FramsticksLib:
 
     def isValidCreature(self, genotype_list: List[str]) -> List[bool]:
         """
-        :returns: validity of the genotype when revived. Apart from genetic validity, this includes detecting problems that may arise when building a Creature from Genotype, such as multiple muscles of the same type in the same location in body, e.g. 'X[@][@]'.
+        :returns: validity of the genotype when revived. Apart from genetic validity,
+          this includes detecting problems that may arise when building a Creature from Genotype,
+          such as multiple muscles of the same type in the same location in body, e.g. 'X[@][@]'.
         """
 
         # Genetic validity and simulator validity are two separate properties (in particular, genetic validity check is implemented by the author of a given genetic format and operators).
@@ -367,7 +396,11 @@ class FramsticksLib:
             if frams.Geno.newFromString(g).is_valid._int() != 1:
                 valid.append(False)  # invalid according to genetic check
             else:
-                can_add = pop.canAdd(g, 1, 1)  # First "1" means to treat warnings during build as build failures - this allows detecting problems when building Creature from Genotype. Second "1" means mute emitted errors, warnings, messages. Returns 1 (ok, could add) or 0 (there were some problems building Creature from Genotype)
+                # First "1" means to treat warnings during build as build failures
+                #  - this allows detecting problems when building Creature from Genotype.
+                # Second "1" means mute emitted errors, warnings, messages.
+                # Returns 1 (ok, could add) or 0 (there were some problems building Creature from Genotype)
+                can_add = pop.canAdd(g, 1, 1)
                 valid.append(can_add._int() == 1)
 
         if len(genotype_list) != len(valid):
@@ -379,7 +412,10 @@ def parseArguments():
     parser = argparse.ArgumentParser(description='Run this program with "python -u %s" if you want to disable buffering of its output.' % sys.argv[0])
     parser.add_argument('-path', type=ensureDir, required=True, help='Path to the Framsticks library (.dll or .so or .dylib) without trailing slash.')
     parser.add_argument('-lib', required=False, help='Library name. If not given, "frams-objects.dll" (or .so or .dylib) is assumed depending on the platform.')
-    parser.add_argument('-simsettings', required=False, help="The name of the .sim file with settings for evaluation, mutation, crossover, and similarity estimation. If not given, \"eval-allcriteria.sim\" is assumed by default. Must be compatible with the \"standard-eval\" expdef. If you want to provide more files, separate them with a semicolon ';'.")
+    parser.add_argument('-simsettings', required=False,
+                         help="The name of the .sim file with settings for evaluation, mutation, crossover, and similarity estimation. "
+                         "If not given, \"eval-allcriteria.sim\" is assumed by default. Must be compatible with the \"standard-eval\" expdef. "
+                         "If you want to provide more files, separate them with a semicolon ';'.")
     parser.add_argument('-genformat', required=False, help='Genetic format for the demo run, for example 4, 9, or S. If not given, f1 is assumed.')
     return parser.parse_args()
 

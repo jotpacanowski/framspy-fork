@@ -30,10 +30,15 @@ c_api = None  # will be initialized in init(). Global because ExtValue uses it.
 
 
 class ExtValue(object):
-    """All Framsticks objects and values are instances of this class. Read the documentation of the 'frams' module for more information."""
+    """All Framsticks objects and values are instances of this class.
+    Read the documentation of the 'frams' module for more information.
+    """
 
     _reInsideParens = re.compile('\((.*)\)')
-    _reservedWords = ['import']  # this list is scanned during every attribute access, only add what is really clashing with Framsticks properties
+    _reservedWords = ['import']
+    """This list is scanned during every attribute access,
+    only add what is really clashing with Framsticks properties
+    """
     _reservedXWords = ['x' + word for word in _reservedWords]
     _encoding = 'utf-8'
 
@@ -228,7 +233,8 @@ class ExtValue(object):
         if t[0] == 'p':
             arg_types = ExtValue._reInsideParens.search(t)
             if arg_types:
-                arg_types = arg_types.group(1).split(',')  # anyone wants to add argument type validation using param type declarations?
+                # anyone wants to add argument type validation using param type declarations?
+                arg_types = arg_types.group(1).split(',')
 
 
             def fun(*args):
@@ -308,8 +314,12 @@ def init(*args):
     Initializes the connection to Framsticks dll/so/dylib.
 
     Python programs do not have to know the Framstics path but if they know, just pass the path as the first argument.
-    Similarly '-dPATH' and '-DPATH' needed by Framsticks are optional and derived from the first path, unless they are specified as args in init().
-    '-LNAME' is the optional library name (full name including the file name extension), default is 'frams-objects.dll/.so/.dylib' depending on the platform.
+    Similarly '-dPATH' and '-DPATH' needed by Framsticks are optional and derived from the first path,
+    unless they are specified as args in init().
+
+    '-LNAME' is the optional library name (full name including the file name extension),
+    default is 'frams-objects.dll/.so/.dylib' depending on the platform.
+
     All other arguments are passed to Framsticks and not interpreted by this function.
     """
 
@@ -326,7 +336,8 @@ def init(*args):
         elif a[:2] == '-L':
             lib_name = a[2:]
         elif a[:2] == '-t':
-            print("frams.py: thread synchronization enabled.")  # Due to performance penalty, only use if you are really calling methods from different threads.
+            # Due to performance penalty, only use if you are really calling methods from different threads.
+            print("frams.py: thread synchronization enabled.")
             from functools import wraps
             from threading import RLock
             
@@ -342,7 +353,9 @@ def init(*args):
             thread_synchronizer = threads_synchronized(RLock())
             for name in ExtValue.__dict__:
                 attr = getattr(ExtValue, name)
-                if callable(attr) and attr:  # decorate all methods of ExtValue with a reentrant lock so that different threads do not use them concurrently
+                if callable(attr) and attr:
+                    # decorate all methods of ExtValue with a reentrant lock
+                    # so that different threads do not use them concurrently
                     setattr(ExtValue, name, thread_synchronizer(attr))
         elif lib_path is None:
             lib_path = a
@@ -356,10 +369,14 @@ def init(*args):
     if os.name == 'nt':
         if sys.version_info < (3, 8):
             original_dir = os.getcwd()
-            os.chdir(lib_path)  # because under Windows, frams-objects.dll requires other dll's which reside in the same directory, so we must change current dir for them to be found while loading the main dll.
+            # because under Windows, frams-objects.dll requires other dll's which reside in the same directory,
+            # so we must change current dir for them to be found while loading the main dll.
+            os.chdir(lib_path)
         else:
             os.add_dll_directory(os.path.abspath(lib_path))
-    abs_data = os.path.join(os.path.abspath(lib_path), "data")  # use absolute path for -d and -D so python is free to cd anywhere without confusing Framsticks
+
+    # use absolute path for -d and -D so python is free to cd anywhere without confusing Framsticks
+    abs_data = os.path.join(os.path.abspath(lib_path), "data")
 
     # for the hypothetical case without lib_path, the abs_data must be obtained from somewhere else
     if frams_d is None:
@@ -371,16 +388,31 @@ def init(*args):
     initargs.insert(0, 'dummy.exe')  # as an offset, 0th arg is by convention app name
 
     global c_api  # access global variable
-    if lib_path is not None:  # theoretically, this should only be needed for "and os.name == 'posix'", but in windows python 3.9.5, without using the full lib_name path, there is FileNotFoundError: Could not find module 'frams-objects.dll' (or one of its dependencies). Try using the full path with constructor syntax. Maybe related: https://bugs.python.org/issue42114 and https://stackoverflow.com/questions/59330863/cant-import-dll-module-in-python and https://bugs.python.org/issue39393
-        lib_name = os.path.join(lib_path, lib_name)  # lib_path is always set ('.' when not specified). For the (currently unused) case of lib_path==None, the resulting lib_name is a bare filename without any path, which loads the library from a system-configured location.
+    if lib_path is not None:
+        # theoretically, this should only be needed for "and os.name == 'posix'", but in windows python 3.9.5,
+        # without using the full lib_name path, there is
+        # FileNotFoundError: Could not find module 'frams-objects.dll' (or one of its dependencies).
+        # Try using the full path with constructor syntax. Maybe related:
+        # https://bugs.python.org/issue42114 and
+        # https://stackoverflow.com/questions/59330863/cant-import-dll-module-in-python
+        # and https://bugs.python.org/issue39393
+        lib_name = os.path.join(lib_path, lib_name)
+        # lib_path is always set ('.' when not specified). For the (currently unused) case of lib_path==None,
+        # the resulting lib_name is a bare filename without any path,
+        # which loads the library from a system-configured location.
     try:
-        c_api = ctypes.CDLL(lib_name)  # if accessing this module from multiple threads, they will all share a single c_api and access the same copy of the library and its data. If you want separate independent copies, read the comment at the top of this file on using the "multiprocessing" module.
+        c_api = ctypes.CDLL(lib_name)
+        # if accessing this module from multiple threads, they will all share a single c_api
+        # and access the same copy of the library and its data.
+        # If you want separate independent copies, read the comment at the top of this file
+        # on using the "multiprocessing" module.
     except OSError:
         print("*** Could not find or open '%s' from '%s'.\n*** Did you provide proper arguments and is this file readable?\n" % (lib_name, os.getcwd()))
         raise
 
     if os.name == 'nt' and sys.version_info < (3, 8):
-        os.chdir(original_dir)  # restore current working dir after loading the library so Framsticks sees the expected directory
+        # restore current working dir after loading the library so Framsticks sees the expected directory
+        os.chdir(original_dir)
 
     c_api.init.argtypes = [ctypes.c_int, ctypes.POINTER(ctypes.c_char_p)]
     c_api.init.restype = None

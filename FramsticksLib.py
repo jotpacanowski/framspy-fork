@@ -36,8 +36,13 @@ class FramsticksLib:
     and, optionally, the name of the Framsticks dll/so/dylib (if it is non-standard). See::
         FramsticksLib.py -h"""
 
-    PRINT_FRAMSTICKS_OUTPUT: bool = False  # set to True for debugging
-    DETERMINISTIC: bool = False  # set to True to have the same results in each run
+    PRINT_FRAMSTICKS_OUTPUT: bool = False
+    "Set to True for debugging."
+    DETERMINISTIC: bool = False
+    """Set to True to have the same results in each run.
+    
+    Must be set before FramsticksLib() constructor call.
+    """
 
     GENOTYPE_INVALID: str = "/*invalid*/"
     """

@@ -182,7 +182,8 @@ def main():
 	hof = tools.HallOfFame(parsed_args.hof_size)
 	stats = tools.Statistics(lambda ind: ind.fitness.values)
 	# calculate statistics excluding infeasible solutions (by filtering out these with fitness containing FITNESS_VALUE_INFEASIBLE_SOLUTION)
-	filter_feasible_for_function = lambda function, fitness_criteria: function(list(filter(is_feasible_fitness_criteria, fitness_criteria)))
+	def filter_feasible_for_function(function, fitness_criteria):
+		return function(list(filter(is_feasible_fitness_criteria, fitness_criteria)))
 	stats.register("avg", lambda fitness_criteria: filter_feasible_for_function(np.mean, fitness_criteria))
 	stats.register("stddev", lambda fitness_criteria: filter_feasible_for_function(np.std, fitness_criteria))
 	stats.register("min", lambda fitness_criteria: filter_feasible_for_function(np.min, fitness_criteria))

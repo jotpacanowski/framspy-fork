@@ -47,7 +47,7 @@ class ExtValue(object):
 			self._initFromString(arg)
 		elif isinstance(arg, float):
 			self._initFromDouble(arg)
-		elif arg == None:
+		elif arg is None:
 			self._initFromNull()
 		else:
 			raise ctypes.ArgumentError("Can't make ExtValue from '%s' (%s)" % (str(arg), type(arg)))
@@ -124,7 +124,7 @@ class ExtValue(object):
 
 	def _class(self):
 		cls = c_api.extClass(self.__ptr)
-		if cls == None:
+		if cls is None:
 			return None
 		else:
 			return ExtValue._stringFromC(cls)
@@ -174,7 +174,7 @@ class ExtValue(object):
 
 	def _propHelp(self, i):
 		h = c_api.extPropHelp(self.__ptr, i)  # unlike other string fields, help is sometimes NULL
-		return ExtValue._stringFromC(h) if h != None else '';
+		return ExtValue._stringFromC(h) if h is not None else ''
 
 
 	def _propFlags(self, i):
@@ -279,7 +279,7 @@ class ExtValue(object):
 	def __len__(self):
 		try:
 			return self.size._int()
-		except:
+		except Exception:
 			return 0
 
 
@@ -375,7 +375,7 @@ def init(*args):
 		lib_name = os.path.join(lib_path, lib_name)  # lib_path is always set ('.' when not specified). For the (currently unused) case of lib_path==None, the resulting lib_name is a bare filename without any path, which loads the library from a system-configured location.
 	try:
 		c_api = ctypes.CDLL(lib_name)  # if accessing this module from multiple threads, they will all share a single c_api and access the same copy of the library and its data. If you want separate independent copies, read the comment at the top of this file on using the "multiprocessing" module.
-	except OSError as e:
+	except OSError:
 		print("*** Could not find or open '%s' from '%s'.\n*** Did you provide proper arguments and is this file readable?\n" % (lib_name, os.getcwd()))
 		raise
 
@@ -448,7 +448,7 @@ def init(*args):
 				attr = attr._value()
 			setattr(sys.modules[__name__], n, attr)
 
-	print('Using Framsticks version: ' + str(Simulator.version_string))
-	print('Home (writable) dir     : ' + home_dir)
-	print('Resources dir           : ' + res_dir)
+	print('Using Framsticks version: ' + str(Simulator.version_string))  # type: ignore # noqa: F821
+	print('Home (writable) dir     : ' + home_dir)  # type: ignore # noqa: F821
+	print('Resources dir           : ' + res_dir)  # type: ignore # noqa: F821
 	print()

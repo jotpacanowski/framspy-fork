@@ -1,0 +1,21 @@
+# default Ruff config: https://docs.astral.sh/ruff/configuration/
+# rules: https://docs.astral.sh/ruff/rules/
+
+extend-exclude = ["dissimilarity"]
+
+[lint]
+select = ["E4", "E7", "E9", "F"]
+
+# Ignore unused imports
+ignore = ["F401", "E401"]
+
+
+[lint.per-file-ignores]
+"*.ipynb" = [
+    "E402", # E402 	module-import-not-at-top-of-file
+    "D",    # docstrings
+]
+
+[lint.pydocstyle]
+# https://docs.astral.sh/ruff/settings/#lint_pydocstyle_convention
+# convention = "TODO"

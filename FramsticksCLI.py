@@ -1,11 +1,14 @@
-from subprocess import Popen, PIPE, check_output
-from enum import Enum
-from typing import List  # to be able to specify a type hint of list(something)
-from itertools import count  # for tracking multiple instances
-import json
-import sys, os
 import argparse
+import json
+import os
+import sys
+from enum import Enum
+from itertools import count  # for tracking multiple instances
+from subprocess import PIPE, Popen, check_output
+from typing import List  # to be able to specify a type hint of list(something)
+
 import numpy as np
+
 from framsfiles import reader as framsreader
 from framsfiles import writer as framswriter
 

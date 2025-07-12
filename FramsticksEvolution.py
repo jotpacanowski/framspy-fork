@@ -1,8 +1,10 @@
 import argparse
 import os
 import sys
+
 import numpy as np
-from deap import creator, base, tools, algorithms
+from deap import algorithms, base, creator, tools
+
 from FramsticksLib import FramsticksLib
 
 # Note: this may be less efficient than running the evolution directly in Framsticks, so if performance is key, compare both options.

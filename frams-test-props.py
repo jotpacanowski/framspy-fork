@@ -1,8 +1,9 @@
 """An advanced example of iterating through the properties of an ExtValue object and printing their characteristics.
 This example may be useful for some developers, but it is not needed for a regular usage of Framsticks (i.e. simulation and evolution)."""
 
-import frams
 import sys
+
+import frams
 
 frams.init(*(sys.argv[1:]))
 

@@ -4,8 +4,9 @@ For an introduction to Framsticks, its usage and scripting, see https://www.yout
 For a list of available classes, objects, methods and fields, see http://www.framsticks.com/files/classdoc/
 For a number of examples of scripting, see the "scripts" directory in the Framsticks distribution."""
 
-import sys
 import json
+import sys
+
 import frams
 
 frams.init(*(sys.argv[1:]))  # pass whatever args we have, init() is the right place to deal with different scenarios:

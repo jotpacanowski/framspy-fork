@@ -1,10 +1,13 @@
-from typing import List  # to be able to specify a type hint of list(something)
-from enum import Enum, auto, unique
-import json
-import sys, os
 import argparse
+import json
+import os
 import random
+import sys
+from enum import Enum, auto, unique
+from typing import List  # to be able to specify a type hint of list(something)
+
 import numpy as np
+
 import frams
 
 

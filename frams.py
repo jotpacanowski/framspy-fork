@@ -24,12 +24,15 @@ However, this will likely degrade the performance (due to required locking) comp
 For interfaces in other languages (e.g. using the Framsticks library in your C++ code), see ../cpp/frams/frams-objects.h
 """
 
-import ctypes, re, sys, os
+import ctypes
+import os
+import re
+import sys
 
 c_api = None  # will be initialized in init(). Global because ExtValue uses it.
 
 
-class ExtValue(object):
+class ExtValue:
     """All Framsticks objects and values are instances of this class.
     Read the documentation of the 'frams' module for more information.
     """
@@ -250,7 +253,7 @@ class ExtValue(object):
             return 0
 
     def __iter__(self):
-        class It(object):
+        class It:
             def __init__(self, container, frams_it):
                 self.container = container
                 self.frams_it = frams_it

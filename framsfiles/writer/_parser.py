@@ -1,6 +1,7 @@
 import warnings
 
 from framsfiles._context import _specs
+
 from ._serializer import _serialize_value
 
 _EXPECTED_OBJECT_WARNING = "Encountered item of type {} in list of objects. Skipping."

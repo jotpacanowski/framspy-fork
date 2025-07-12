@@ -2,7 +2,8 @@ import json
 import warnings
 
 from framsfiles._context import _contexts
-from ._parser import _parse_object_list, _parse_object
+
+from ._parser import _parse_object, _parse_object_list
 
 _NO_FILE_EXTENSION_WARNING = "No file extension found. Setting default context."
 _UNSUPPORTED_EXTENSION_WARNING = "Unsupported file extension: '{}'. Setting default context."

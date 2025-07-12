@@ -39,7 +39,7 @@ class ExtValue[T]:
     Read the documentation of the 'frams' module for more information.
     """
 
-    _reInsideParens = re.compile("\((.*)\)")
+    _reInsideParens = re.compile(r"\((.*)\)")
     _reservedWords = ["import"]
     """This list is scanned during every attribute access,
     only add what is really clashing with Framsticks properties

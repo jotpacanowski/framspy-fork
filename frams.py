@@ -28,6 +28,7 @@ import ctypes
 import os
 import re
 import sys
+import weakref
 from typing import Any
 
 c_api: ctypes.CDLL | None = None
@@ -47,6 +48,27 @@ class ExtValue[T]:
     _reservedXWords = ["x" + word for word in _reservedWords]
     _encoding = "utf-8"
 
+    _deleter: weakref.finalize
+    """
+    During Python interpreter shutdown global `c_api` may be deleted (or set to None) 
+    before ExtValues are deleted.
+    This trick replaces the unsafe `__del__` method.
+
+    According to https://docs.python.org/3/reference/datamodel.html#object.__del__
+    > It is not guaranteed that __del__() methods are called for objects that still exist 
+    > when the interpreter exits.
+    > weakref.finalize provides a straightforward way to register a cleanup function 
+
+    From CPython documentation:
+    https://docs.python.org/3/library/weakref.html#comparing-finalizers-with-del-methods
+    > A more robust alternative can be to define a finalizer 
+    > which only references the specific functions and objects that it needs,
+    > rather than having access to the full state of the object (...)
+    >
+    > Defined like this, our finalizer only receives a reference to the details it needs to clean up the directory appropriately.
+    > If the object never gets garbage collected the finalizer will still be called at exit.
+    """
+
     def __init__(self, arg=None, dontinit=False):
         if dontinit:
             return
@@ -61,8 +83,19 @@ class ExtValue[T]:
         else:
             raise ctypes.ArgumentError("Can't make ExtValue from '%s' (%s)" % (str(arg), type(arg)))
 
-    def __del__(self):
-        c_api.extFree(self.__ptr)
+        # This should be safer than __del__
+        # https://docs.python.org/3/library/weakref.html#comparing-finalizers-with-del-methods
+        # https://docs.python.org/3/reference/datamodel.html#object.__del__
+        #
+        # note: not called "destructor" for a reason
+        self._deleter = weakref.finalize(self, c_api.extFree, self.__ptr)
+
+        # To prove it's working comment out:
+        # self._debug_finalizer = weakref.finalize(self, print, "__del__ or finalize on ", hex(id(self)), repr(self))
+
+    # def __del__(self):
+    #     pass
+    #     c_api.extFree(self.__ptr)
 
     def _initFromNull(self):
         self.__ptr = c_api.extFromNull()

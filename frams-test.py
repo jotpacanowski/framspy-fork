@@ -28,14 +28,17 @@ print()
 def extValueDetails(v):
     """A helper function to display basic information about a variable of type ExtValue."""
     return (
-        '\t"'
-        + str(v)
-        + '"    frams type='
+        f'\t{str(v)!r:15}'
+        # '\t"' + str(v)
+        + '    frams type='
         + str(v._type())
         + "    frams class="
         + str(v._class())
         + "    python type="
-        + str(type(v._value()))
+        # + str(type(v._value()))
+        + type(v._value()).__name__
+        + "   "
+        + repr(v)
     )
 
 
@@ -43,7 +46,7 @@ dic_as_string = '[100,2.2,"abc",[null,[],{}],XYZ[9,8,7]]'
 print("We have the following string:\n\t'%s'" % dic_as_string)
 print("Looks like a serialized dictionary, let's ask Framsticks String.deserialize() to do its job.")
 v = frams.String.deserialize(dic_as_string)
-print("Framsticks String.deserialize() returned\n\t", type(v))
+print("Framsticks String.deserialize() returned\n\t", type(v), "  ", repr(v))
 print("More specifically, it is:")
 print(extValueDetails(v))
 print(
@@ -52,8 +55,22 @@ print(
 for e in v:
     print(extValueDetails(e))
 
+print("\ndetailed:")
+for i, e in enumerate(v):
+    # print(f"    v[{i}]:", extValueDetails(e))
+    print(f"    v[{i}]:", extValueDetails(v[i]))
+    if e._class() in ("Vector", "XYZ"):
+        if e._class() == "XYZ":
+            print("XYZ.toString:", e.toString)
+            print("XYZ.toVector:", e.toVector)
+            e = e.toVector
+        for j, each_v in enumerate(e):
+            print(f"     - [{j}]: ", extValueDetails(each_v))
+print(f"{len(v)=}")
+
 print(
-    "\nNow let's play with the Framsticks simulator. Let's create a Genotype object and set fields in its custom 'data' dictionary."
+    "\nNow let's play with the Framsticks simulator. "
+    "Let's create a Genotype object and set fields in its custom 'data' dictionary."
 )
 g = frams.GenePools[0].add("X")
 g.name = "Snakis Py"
@@ -66,7 +83,7 @@ g.data["d"] = dic
 print(extValueDetails(g))
 
 print("Let's add a few mutants and display their data:")
-for more in range(5):
+for _more in range(5):
     frams.GenePools[0].add(frams.GenMan.mutate(g.geno))
 
 for g in frams.GenePools[0]:
@@ -89,7 +106,7 @@ frams.World.wrldg = 5  # gravity=5x default, let it fall quickly
 frams.Simulator.init()  # adds initial_genotype to gene pool (calls onInit() from standard.expdef)
 frams.Simulator.start()  # this does not actually start the simulation, just sets the "Simulator.running" status variable
 step = frams.Simulator.step  # cache reference to avoid repeated lookup in the loop (just for performance)
-for s in range(15):
+for _s in range(15):
     step()  # first step performs selection and revives one genotype according to standard.expdef rules
     creature = frams.Populations[0][0]  # FramScript Creature object
     mechpart0 = creature.getMechPart(0)

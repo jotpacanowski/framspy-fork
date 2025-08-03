@@ -46,7 +46,8 @@ py-modules = [
     # in folders:
     # "dissimilarity",  # TODO: add empty __init__.py
     "framsfiles",
-    # frams-test seems important too -> TODO rename? -> "python -m frams_test"
+    "frams_test",
+    "frams_test_props",
 ]
 # Note: Check
 #  cat .venv/Lib/site-packages/fram*.dist-info/top_level.txt

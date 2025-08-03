@@ -9,14 +9,14 @@ Framsticks can be found here:
 - website: https://www.framsticks.com/
 - "framspy" source code
   - SVN: https://www.framsticks.com/svn/framsticks/framspy/
+    - The original `Framsticks.zip` file is missing some `*.sim` files, but you can get them from this link.
   - trac: https://www.framsticks.com/trac/framsticks/browser/framspy/
-  - interface to SDK in "/cpp" subfolder
-    - https://www.framsticks.com/svn/framsticks/cpp/
+  - interface to SDK in "/cpp" subfolder https://www.framsticks.com/svn/framsticks/cpp/
 - [Framsticks SDK license](https://www.framsticks.com/svn/framsticks/cpp/LICENSE.txt)
 
 ## How to install?
 
-Using pip:
+You can install this package directly from Github. Using pip:
 
 ```
 pip install git+https://github.com/jotpacanowski/framspy-fork.git
@@ -31,8 +31,23 @@ uv add git+https://github.com/jotpacanowski/framspy-fork.git
 
 ## Test run
 
+Download [Framsticks.zip](https://www.framsticks.com/files/apps/Framsticks.zip) from framsticks.com and unpack it.
+The `FramsticksLib` and `frams` modules will need a path to folder
+containing `frams-objects.dll` and `frams-objects.so` libraries.
+
+<!-- Also note where the `data/` subdirectory is. -->
+<!-- TODO: copy *.sim files from framspy? -->
+
+[uv run](https://docs.astral.sh/uv/reference/cli/#uv-run) automatically activates virtualenv.
+
 ```
-python -m frams_test path/to/Framsticks52/
+uv run python -m frams_test path/to/Framsticks52/
+```
+
+In Jupyter notebook, or if virtual environment is active, try:
+
+```
+!python -m frams_test path/to/Framsticks52/
 ```
 
 ## Detailed Framsticks classes documentation

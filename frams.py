@@ -35,13 +35,16 @@ c_api: ctypes.CDLL | None = None
 """will be initialized in init(). Global because ExtValue uses it."""
 
 
-class ExtValue[T]:
+class ExtValue[T]:  # Note: Python 3.12 syntax
     """All Framsticks objects and values are instances of this class.
     Read the documentation of the 'frams' module for more information.
     """
 
     _reInsideParens = re.compile(r"\((.*)\)")
-    _reservedWords = ["import"]
+    _reservedWords = [
+        "import"
+        # TODO: "class" and other Python keywords
+    ]
     """This list is scanned during every attribute access,
     only add what is really clashing with Framsticks properties
     """
@@ -109,48 +112,48 @@ class ExtValue[T]:
     def _initFromString(self, v):
         self.__ptr = c_api.extFromString(ExtValue._cstringFromPython(v))
 
-    @classmethod
-    def _makeNull(cls, v):
+    @staticmethod
+    def _makeNull(v=None):
         e = ExtValue(None, True)
         e._initFromNull()
         return e
 
-    @classmethod
-    def _makeInt(cls, v):
+    @staticmethod
+    def _makeInt(v):
         e = ExtValue(None, True)
         e._initFromInt(v)
         return e
 
-    @classmethod
-    def _makeDouble(cls, v):
+    @staticmethod
+    def _makeDouble(v):
         e = ExtValue(None, True)
         e._initFromDouble(v)
         return e
 
-    @classmethod
-    def _makeString(cls, v):
+    @staticmethod
+    def _makeString(v):
         e = ExtValue(None, True)
         e._initFromString(v)
         return e
 
-    @classmethod
-    def _rootObject(cls):
+    @staticmethod
+    def _rootObject():
         e = ExtValue(None, True)
         e.__ptr = c_api.rootObject()
         return e
 
-    @classmethod
-    def _stringFromC(cls, cptr):
+    @staticmethod
+    def _stringFromC(cptr):
         return cptr.decode(ExtValue._encoding)
 
-    @classmethod
-    def _cstringFromPython(cls, s):
+    @staticmethod
+    def _cstringFromPython(s):
         return ctypes.c_char_p(s.encode(ExtValue._encoding))
 
-    def _type(self) -> int | Any:
+    def _type(self) -> int:
         return c_api.extType(self.__ptr)
 
-    def _class(self):
+    def _class(self) -> str | None:
         cls = c_api.extClass(self.__ptr)
         if cls is None:
             return None
@@ -300,7 +303,7 @@ class ExtValue[T]:
                 if self.frams_it.next._int() != 0:
                     return self.frams_it.value
                 else:
-                    raise StopIteration()
+                    raise StopIteration
 
         return It(self, self.iterator)
 

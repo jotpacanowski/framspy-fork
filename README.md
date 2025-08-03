@@ -15,6 +15,14 @@ Framsticks can be found here:
 - [Framsticks SDK license](https://www.framsticks.com/svn/framsticks/cpp/LICENSE.txt)
 
 
+## Detailed Framsticks classes documentation
+
+Go to https://www.framsticks.com/files/classdoc/ and click on "GenMan".
+
+To find mutation or crossover parameters, search for "f1_" or "f9_mut".
+
+<!-- TODO: mutate and crossover C++ impl. - links from tutorial? -->
+
 
 ## Original description - "framspy" directory
 

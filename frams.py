@@ -144,7 +144,16 @@ class ExtValue[T]:  # Note: Python 3.12 syntax
 
     @staticmethod
     def _stringFromC(cptr):
-        return cptr.decode(ExtValue._encoding)
+        try:
+            ret = cptr.decode(ExtValue._encoding)
+            return ret
+        except UnicodeDecodeError as e:
+            # e.g. String.NBSP b'\xa0'
+            # print(f"[debug ExtValue._stringFromC] {cptr=}")
+            e.add_note(f"[debug ExtValue._stringFromC] {cptr=}")
+            # ^^^ feature added in Python 3.11
+            # https://daniel.feldroy.com/posts/til-2025-05-exception-add_note
+            raise
 
     @staticmethod
     def _cstringFromPython(s):

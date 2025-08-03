@@ -12,3 +12,42 @@ dependencies = [
 
 # https://til.simonwillison.net/python/pyproject
 # Python packages with pyproject.toml and nothing else
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+# https://packaging.python.org/en/latest/specifications/pyproject-toml/#pyproject-build-system-table
+# https://packaging.python.org/en/latest/guides/modernize-setup-py-project/#where-to-start
+# https://setuptools.pypa.io/en/latest/userguide/pyproject_config.html
+
+# https://setuptools.pypa.io/en/latest/userguide/package_discovery.html#src-layout
+# src-layout -> no implicit PYTHONPATH=.  forces users to use venvs -> use flat-layout
+#
+# https://setuptools.pypa.io/en/latest/userguide/package_discovery.html#custom-discovery
+
+# https://setuptools.pypa.io/en/latest/userguide/pyproject_config.html
+# [tool.setuptools.packages.find]
+# where = ["."]
+# exclude = ["tests*", "docs*"]
+
+[tool.setuptools]
+# TODO: package data and *.sim files
+# packages = [
+#     "dissimilarity",
+#     "framsfiles",
+# ]
+py-modules = [
+    # .py files
+    "frams",
+    "FramsticksCLI",
+    "FramsticksEvolution",
+    "FramsticksLib",
+    "FramsticksLibCompetition",
+    # in folders:
+    # "dissimilarity",  # TODO: add empty __init__.py
+    "framsfiles",
+    # frams-test seems important too -> TODO rename? -> "python -m frams_test"
+]
+# Note: Check
+#  cat .venv/Lib/site-packages/fram*.dist-info/top_level.txt
+# if it lists all importable Python modules.

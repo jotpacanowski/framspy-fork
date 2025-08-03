@@ -14,6 +14,26 @@ Framsticks can be found here:
     - https://www.framsticks.com/svn/framsticks/cpp/
 - [Framsticks SDK license](https://www.framsticks.com/svn/framsticks/cpp/LICENSE.txt)
 
+## How to install?
+
+Using pip:
+
+```
+pip install git+https://github.com/jotpacanowski/framspy-fork.git
+```
+
+Using [uv](https://docs.astral.sh/uv/):
+
+```
+uv venv --seed .venv
+uv add git+https://github.com/jotpacanowski/framspy-fork.git
+```
+
+## Test run
+
+```
+python -m frams_test path/to/Framsticks52/
+```
 
 ## Detailed Framsticks classes documentation
 

@@ -320,6 +320,26 @@ def init(*args):
     default is 'frams-objects.dll/.so/.dylib' depending on the platform.
 
     All other arguments are passed to Framsticks and not interpreted by this function.
+
+    
+    Comments from "frams-test.py":
+    
+    ```
+    # pass whatever args we have, init() is the right place to deal with different scenarios:
+    frams.init(*(sys.argv[1:]))
+
+    # should try to figure out everything (and might fail)
+    frams.init()
+
+    # load the library from the specified directory and configure Framsticks path as "data" inside this directory
+    frams.init('path/to/lib')
+
+    # as above, but set the working (writable) directory somewhere else (see also -D)
+    frams.init('path/to/lib','-d/tmp/workdir/data')
+
+    # use specified library location and non-default file name
+    frams.init('path/to/lib','-Lframs-objects-alt.dll')
+    ```
     """
 
     frams_d = None

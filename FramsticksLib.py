@@ -67,15 +67,14 @@ class FramsticksLib:
     ]
     """All files MUST be compatible with the standard-eval expdef.
     The order they are loaded in is important!
-    """
 
-    # This function is not needed because in Python, "For efficiency reasons, each module is only imported once per interpreter session."
-    # @staticmethod
-    # def getFramsModuleInstance():
-    # """If some other party needs access to the frams module to directly access or modify Framsticks objects,
-    # use this function to avoid importing the "frams" module multiple times and avoid potentially initializing
-    # it many times."""
-    # return frams
+    Examples:
+    
+    - "eval-allcriteria.sim",  a good trade-off in performance sampling period ("perfperiod") for vertpos and velocity
+    - "deterministic.sim", turns off random noise (added for robustness) so that each evaluation yields identical performance values (causes "overfitting")
+    - "sample-period-2.sim", short performance sampling period so performance (e.g. vertical position) is sampled more often
+    - "sample-period-longest.sim", increased performance sampling period so distance and velocity are measured rectilinearly
+    """
 
     def __init__(self, frams_path, frams_lib_name, sim_settings_files):
         # will be initialized only when necessary (for rare dissimilarity methods)
@@ -386,13 +385,13 @@ class FramsticksLib:
             raise ValueError("Initial genotype '%s' is invalid" % initial_genotype)
 
         g = initial_genotype
-        for i in range(iter_max // 2):  # a sequence of iter_max/2 undirected mutations starting from initial_genotype
+        for _i in range(iter_max // 2):  # a sequence of iter_max/2 undirected mutations starting from initial_genotype
             g_new = self.mutate([g])[0]
             if self.isValidCreature([g_new])[0]:  # valid mutation
                 g = g_new
 
         best_diff, best_in_target_range = estimate_diff(g)
-        for i in range(
+        for _i in range(
             iter_max // 2
         ):  # a sequence of iter_max/2 mutations, only accepting those which approach target numbers of parts and neurons
             g_new = self.mutate([g])[0]
@@ -512,7 +511,7 @@ if __name__ == "__main__":
     parent1 = framsLib.mutate([simplest])[0]
     parent2 = parent1
     MUTATE_COUNT = 10
-    for x in range(MUTATE_COUNT):  # example of a chain of 10 mutations
+    for _x in range(MUTATE_COUNT):  # example of a chain of 10 mutations
         parent2 = framsLib.mutate([parent2])[0]
     print("\tParent1 (mutated simplest):", parent1)
     print("\tParent2 (Parent1 mutated %d times):" % MUTATE_COUNT, parent2)

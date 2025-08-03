@@ -1,0 +1,14 @@
+[project]
+name = "framspy-fork"
+version = "0.1.0"
+description = "Unofficial fork of Python interface to Framsticks library. "
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "deap>=1.4.3",
+    "numpy>=2.3.2",
+    "pandas>=2.3.1",
+]
+
+# https://til.simonwillison.net/python/pyproject
+# Python packages with pyproject.toml and nothing else

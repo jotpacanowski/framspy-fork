@@ -345,11 +345,41 @@ def format_as_python_type_extvalue(el_type: str) -> str:
     # return f'ExtValue["{maybe_py_type}"]', el_type
 
 
+# TODO: should docstrings from regular "frams.py" be duplicated here?
+header_framspy_pyi = '''
+"""
+Framsticks as a Python module.
+
+This text is from frams.pyi file.
+Put this file next to `frams.py` file.
+"""
+
+import ctypes
+from typing import Any, overload, type_check_only
+from typing import Any as Object
+from warnings import deprecated
+
+c_api: ctypes.CDLL
+
+home_dir: str
+res_dir: str
+
+def init(*args) -> None: ...
+
+class ExtValue[T]:  # Note: Python 3.12 syntax
+    """All Framsticks objects and values are instances of this class.
+    Read the documentation of the 'frams' module for more information.
+    """
+
+    def _type(self) -> int | Any: ...
+    def _class(self) -> Any: ...
+    # def _value(self) -> int | float | str | ExtValue: ...
+    def _value(self) -> T: ...
+'''.lstrip()
+
+
 def main_write_framscript_part_of_the_stub(doc: FramscriptDoc):
-    print("from warnings import deprecated")
-    print("from typing import Any, overload")
-    print("from typing import Any as Object\n\n")
-    print("class ExtValue: ...\n\n")
+    print(header_framspy_pyi)
 
     for each_type in doc.types:
         if each_type.context not in (GLOBAL_CONTEXT, "Global context"):
@@ -363,12 +393,8 @@ def main_write_framscript_part_of_the_stub(doc: FramscriptDoc):
         print(format_description_as_docstring(each_type.description))
         print()
 
-        detecting_duplicate_elements = collections.Counter(
-            el.id for el in each_type.elements
-        )
-        duplicate_elements = {
-            k for k, v in detecting_duplicate_elements.items() if v > 1
-        }
+        detecting_duplicate_elements = collections.Counter(el.id for el in each_type.elements)
+        duplicate_elements = {k for k, v in detecting_duplicate_elements.items() if v > 1}
         # print(f"# duplicate_elements: {duplicate_elements} {len(duplicate_elements)}")
         # -> import, substr, intersect
 
@@ -378,9 +404,7 @@ def main_write_framscript_part_of_the_stub(doc: FramscriptDoc):
             if el.id in INVALID_PY_IDENTS:
                 id_py = el.id + "_"
             if el.name is not None:
-                if el.name.lower() != el.id.lower() and (
-                    el.name.lower() != el.id.lower() + " object"
-                ):
+                if el.name.lower() != el.id.lower() and (el.name.lower() != el.id.lower() + " object"):
                     # descr = el.name + " (el.name)\n\n" + descr
                     descr = el.name + "\n\n" + descr
                 # Example:
@@ -404,19 +428,14 @@ def main_write_framscript_part_of_the_stub(doc: FramscriptDoc):
                     if arg_name in arg_name_repeats:
                         arg_name += "_2"  # TODO
                     arg_type_py = MAP_TO_SIMPLE_PY_TYPE.get(arg.type)
-                    args.append(
-                        f"{arg_name.replace(' ', '_')}: "
-                        + (arg_type_py if arg_type_py is not None else f"{arg.type!r}")
-                    )
+                    args.append(f"{arg_name.replace(' ', '_')}: " + (arg_type_py if arg_type_py is not None else f"{arg.type!r}"))
                     arg_name_repeats.add(arg_name)
                 args = ", ".join(args)
                 # args = "..."
 
                 ret_type = ""
                 if el.type is not None:
-                    ret_type, ret_type_comment = format_as_python_type_extvalue(
-                        el.type
-                    )  # TODO?
+                    ret_type, ret_type_comment = format_as_python_type_extvalue(el.type)  # TODO?
                     ret_type = f" -> {ret_type}"
                     if ret_type_comment:
                         ret_type_comment = f"  # returns {ret_type_comment}"
@@ -445,9 +464,6 @@ def main_write_framscript_part_of_the_stub(doc: FramscriptDoc):
 
 if __name__ == "__main__":
     try:
-        # Parse from actual file (uncomment when you have the file)
-        # main_example("framscript.xml")
-
         filename = "./framscript.xml"
         if len(sys.argv) > 1:
             filename = sys.argv[1]
@@ -466,9 +482,6 @@ if __name__ == "__main__":
         print("----\n\n\n")
         # detailed:
         for err in e.errors():
-            # {'type': 'missing', 'loc': ('types', 4, 'elements', 9, 'name'), 'msg': '[line -1]: Field required',
-            # 'input': {'function': 'true', 'flags': '2', 'description': "This is the empty item in the Theater's menu"},
-            # 'ctx': {'sourceline': -1, 'orig': 'Field required'}}
             print(err)
     except Exception as e:
         print(type(e))  # <class 'pydantic_core._pydantic_core.ValidationError'>
